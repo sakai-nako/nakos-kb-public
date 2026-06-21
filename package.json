@@ -1,0 +1,54 @@
+{
+    "name": "nakos-kb",
+    "type": "module",
+    "version": "0.0.1",
+    "packageManager": "pnpm@10.29.1",
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "esbuild",
+            "playwright-chromium",
+            "sharp",
+            "vue-demi"
+        ]
+    },
+    "scripts": {
+        "dev": "astro dev",
+        "build": "astro build",
+        "build:slides": "node scripts/build-slides.mjs",
+        "preview": "astro preview",
+        "astro": "astro",
+        "slidev": "slidev",
+        "format": "prettier --write .",
+        "lint": "eslint . --fix",
+        "check": "prettier --check . && eslint ."
+    },
+    "dependencies": {
+        "astro": "^5.16.11"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.0.0",
+        "@slidev/cli": "^52.11.3",
+        "@slidev/theme-apple-basic": "^0.25.1",
+        "@slidev/theme-bricks": "^0.25.0",
+        "@slidev/theme-default": "^0.25.0",
+        "@slidev/theme-seriph": "^0.25.0",
+        "@slidev/theme-shibainu": "^0.25.0",
+        "eslint": "^9.39.2",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-astro": "^1.5.0",
+        "eslint-plugin-prettier": "^5.5.5",
+        "eslint-plugin-vue": "^10.7.0",
+        "globals": "^17.0.0",
+        "gray-matter": "^4.0.3",
+        "playwright-chromium": "^1.60.0",
+        "prettier": "^3.8.0",
+        "prettier-plugin-astro": "^0.14.1",
+        "rehype-autolink-headings": "^7.1.0",
+        "rehype-external-links": "^3.0.0",
+        "rehype-slug": "^6.0.0",
+        "slidev-theme-unicorn": "^1.1.2",
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.53.1",
+        "vue-eslint-parser": "^10.2.0"
+    }
+}

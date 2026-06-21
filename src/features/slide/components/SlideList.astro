@@ -1,0 +1,117 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  slides: CollectionEntry<'slides'>[];
+}
+
+const { slides } = Astro.props;
+---
+
+<div class="slide-grid">
+  {
+    slides.map((slide) => (
+      <a
+        href={`/slides/${slide.slug}/index.html`}
+        target="_blank"
+        rel="noopener"
+        class="slide-card"
+      >
+        <div class="card-content">
+          <span class="emoji">📊</span>
+          <h3>{slide.data.title}</h3>
+          {slide.data.info && <p class="description">{slide.data.info}</p>}
+          <div class="meta">
+            <span class="theme-tag">Theme: {slide.data.theme || 'Default'}</span>
+          </div>
+        </div>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .slide-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 1rem 0;
+  }
+
+  .slide-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+
+  .slide-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-content {
+    padding: 1.5rem;
+  }
+
+  .emoji {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    color: #1a1a1a;
+  }
+
+  .description {
+    color: #4b5563;
+    font-size: 0.9rem;
+    margin: 0 0 1rem;
+    line-height: 1.5;
+    /* Limit lines if needed */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .meta {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .theme-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: #f3f4f6;
+    border-radius: 4px;
+    color: #6b7280;
+  }
+
+  :global(html[data-theme='dark']) .slide-card {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) h3 {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .description {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .theme-tag {
+    background: #374151;
+    color: #9ca3af;
+  }
+</style>

@@ -1,0 +1,2 @@
+# Slidevで生成されたスライドを静的ファイルとして配信
+/slides/*  /slides/:splat  200

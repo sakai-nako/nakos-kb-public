@@ -1,0 +1,235 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const { title, pubDate, tags } = post.data;
+const formattedDate = pubDate.toLocaleDateString('ja-JP', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+---
+
+<Layout>
+  <main>
+    <div class="container">
+      <a href="/blog" class="back-link">← Blog 一覧</a>
+
+      <article class="post">
+        <header class="post-header">
+          <div class="pub-date">{formattedDate}</div>
+          <h1>{title}</h1>
+          {
+            tags && tags.length > 0 && (
+              <div class="tags">
+                {tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            )
+          }
+        </header>
+
+        <div class="post-body">
+          <Content />
+        </div>
+      </article>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: #6366f1;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .post {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+  }
+
+  .post-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .pub-date {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    margin: 0 0 1rem;
+    line-height: 1.4;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 4px;
+    color: #0369a1;
+  }
+
+  .post-body {
+    line-height: 1.8;
+    font-size: 1rem;
+  }
+
+  .post-body :global(h2) {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+  }
+
+  .post-body :global(h3) {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.15rem;
+  }
+
+  .post-body :global(p) {
+    margin: 1rem 0;
+  }
+
+  .post-body :global(a) {
+    color: #6366f1;
+  }
+
+  .post-body :global(ul),
+  .post-body :global(ol) {
+    padding-left: 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .post-body :global(code) {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  .post-body :global(pre) {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+
+  .post-body :global(pre code) {
+    background: none;
+    padding: 0;
+  }
+
+  .post-body :global(blockquote) {
+    border-left: 4px solid #6366f1;
+    padding-left: 1rem;
+    color: #4b5563;
+    margin: 1.5rem 0;
+  }
+
+  .post-body :global(hr) {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) {
+    main {
+      padding: 1.5rem 1rem;
+    }
+
+    .post {
+      padding: 2rem 1.25rem;
+    }
+  }
+
+  :global(html[data-theme='dark']) .post-body {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .back-link {
+    color: #818cf8;
+  }
+
+  :global(html[data-theme='dark']) .post {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .post-header {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .pub-date {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) h1 {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .tag {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e3a5f 100%);
+    color: #7dd3fc;
+  }
+
+  :global(html[data-theme='dark']) .post-body :global(a) {
+    color: #818cf8;
+  }
+
+  :global(html[data-theme='dark']) .post-body :global(code) {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  :global(html[data-theme='dark']) .post-body :global(pre) {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  :global(html[data-theme='dark']) .post-body :global(blockquote) {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .post-body :global(hr) {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+</style>

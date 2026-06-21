@@ -1,0 +1,49 @@
+---
+import { getCollection } from 'astro:content';
+import SlideList from '../../features/slide/components/SlideList.astro';
+import Layout from '../../layouts/Layout.astro';
+
+const slides = await getCollection('slides', ({ data }) => !data.draft);
+---
+
+<Layout>
+  <main>
+    <div class="container">
+      <h1>Slides</h1>
+      <p class="subtitle">Presentations and Decks</p>
+
+      <SlideList slides={slides} />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: #6b7280;
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+  }
+
+  :global(html[data-theme='dark']) h1 {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .subtitle {
+    color: #9ca3af;
+  }
+</style>

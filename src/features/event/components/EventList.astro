@@ -1,0 +1,43 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import EventCard from './EventCard.astro';
+
+interface Props {
+  events: CollectionEntry<'events'>[];
+}
+
+const { events } = Astro.props;
+
+// presentation_material 全件を一度だけ取得して event 単位で索引化する
+const allMaterials = await getCollection('presentation_material');
+const materialsByEventId = new Map<string, CollectionEntry<'presentation_material'>[]>();
+for (const m of allMaterials) {
+  const eid = m.data.event?.id;
+  if (!eid) continue;
+  const arr = materialsByEventId.get(eid) ?? [];
+  arr.push(m);
+  materialsByEventId.set(eid, arr);
+}
+
+// 開始日時で降順ソート（新しいイベントが先）
+const sortedEvents = events.sort((a, b) => {
+  return new Date(b.data.start_datetime).getTime() - new Date(a.data.start_datetime).getTime();
+});
+---
+
+<div class="event-grid">
+  {
+    sortedEvents.map((event) => (
+      <EventCard event={event} materials={materialsByEventId.get(event.id) ?? []} />
+    ))
+  }
+</div>
+
+<style>
+  .event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+</style>

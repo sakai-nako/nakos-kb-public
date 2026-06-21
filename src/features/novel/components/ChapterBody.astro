@@ -1,0 +1,68 @@
+---
+import { renderNovelBody } from '../utils/renderNovelBody';
+
+interface Props {
+  body: string;
+}
+
+const { body } = Astro.props;
+// renderNovelBody 内で HTML エスケープ済み（対象は自作原稿のみ）
+const html = renderNovelBody(body);
+---
+
+<div class="novel-body" set:html={html} />
+
+<style>
+  .novel-body {
+    font-size: 1.05rem;
+    line-height: 2;
+    color: #1f2937;
+  }
+
+  /* set:html で挿入する要素にはスコープ属性が付かないため :global で指定する */
+  .novel-body :global(p) {
+    margin: 0 0 1.6em;
+    overflow-wrap: anywhere;
+  }
+
+  .novel-body :global(hr.scene-break) {
+    border: none;
+    margin: 3em 0;
+    text-align: center;
+  }
+
+  .novel-body :global(hr.scene-break)::after {
+    content: '∗ ∗ ∗';
+    color: #9ca3af;
+    font-size: 0.9rem;
+    letter-spacing: 1em;
+    padding-left: 1em; /* letter-spacing は末尾にも付くため左に同量足して中央を保つ */
+  }
+
+  .novel-body :global(rt) {
+    font-size: 0.45em;
+  }
+
+  .novel-body :global(.emphasis-dots) {
+    font-style: normal;
+    -webkit-text-emphasis: filled sesame;
+    text-emphasis: filled sesame;
+  }
+
+  .novel-body :global(a) {
+    color: #6366f1;
+    word-break: break-all;
+  }
+
+  :global(html[data-theme='dark']) .novel-body {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .novel-body :global(hr.scene-break)::after {
+    color: #6b7280;
+  }
+
+  :global(html[data-theme='dark']) .novel-body :global(a) {
+    color: #818cf8;
+  }
+</style>

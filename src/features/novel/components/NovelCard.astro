@@ -1,0 +1,171 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { NOVEL_STATUS_LABELS, formatNovelDate } from '../utils/novelStatus';
+
+interface Props {
+  novel: CollectionEntry<'novels'>;
+  chapterCount: number;
+}
+
+const { novel, chapterCount } = Astro.props;
+const { title, slug, status, synopsis, tags, updated_at } = novel.data;
+---
+
+<a href={`/novels/${slug}`} class="novel-card">
+  <div class="card-content">
+    <div class="card-meta">
+      <span class:list={['status', status]}>{NOVEL_STATUS_LABELS[status]}</span>
+      <span class="chapters">全{chapterCount}話</span>
+    </div>
+    <h3>{title}</h3>
+    <p class="synopsis">{synopsis}</p>
+    {
+      tags && tags.length > 0 && (
+        <div class="tags">
+          {tags.map((tag) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )
+    }
+    <div class="updated">最終更新: {formatNovelDate(updated_at)}</div>
+  </div>
+</a>
+
+<style>
+  .novel-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+
+  .novel-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-content {
+    padding: 1.5rem;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .status.ongoing {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .status.completed {
+    background: #e0e7ff;
+    color: #4338ca;
+  }
+
+  .status.hiatus {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .chapters {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.15rem;
+    color: #1a1a1a;
+    line-height: 1.4;
+  }
+
+  .synopsis {
+    margin: 0 0 1rem;
+    font-size: 0.9rem;
+    color: #4b5563;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 4px;
+    color: #0369a1;
+  }
+
+  .updated {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  :global(html[data-theme='dark']) .novel-card {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .status {
+    background: #374151;
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .status.ongoing {
+    background: #14532d;
+    color: #86efac;
+  }
+
+  :global(html[data-theme='dark']) .status.completed {
+    background: #312e81;
+    color: #c7d2fe;
+  }
+
+  :global(html[data-theme='dark']) .status.hiatus {
+    background: #422006;
+    color: #fcd34d;
+  }
+
+  :global(html[data-theme='dark']) .chapters,
+  :global(html[data-theme='dark']) .updated {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) h3 {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .synopsis {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .tag {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e3a5f 100%);
+    color: #7dd3fc;
+  }
+</style>

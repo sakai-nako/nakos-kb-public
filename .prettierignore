@@ -1,0 +1,10 @@
+node_modules
+dist
+.astro
+
+*.lock
+.prettierrc
+*.md
+*.json
+*.yaml
+*.yml

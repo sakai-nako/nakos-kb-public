@@ -1,0 +1,178 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  event: CollectionEntry<'events'>;
+  materials?: CollectionEntry<'presentation_material'>[];
+}
+
+const { event, materials = [] } = Astro.props;
+const { event_name, start_datetime, end_datetime, how_relate } = event.data;
+
+// 日時フォーマット（タイムゾーンを明示指定してCI環境でもJSTで表示）
+const formatDate = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'Asia/Tokyo',
+  });
+};
+
+const formatTime = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleTimeString('ja-JP', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Tokyo',
+  });
+};
+
+const relateLabels = how_relate || [];
+---
+
+<a href={`/events/${event.id}`} class="event-card">
+  <div class="card-content">
+    <div class="date-badge">
+      <span class="date">{formatDate(start_datetime)}</span>
+      <span class="time">{formatTime(start_datetime)} - {formatTime(end_datetime)}</span>
+    </div>
+    <h3>{event_name}</h3>
+    {
+      relateLabels.length > 0 && (
+        <div class="tags">
+          {relateLabels.map((tag: string) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )
+    }
+    {
+      materials.length > 0 && (
+        <div class="material">
+          <span class="material-label">発表資料:</span>
+          <span class="material-title">
+            {materials.map((m) => m.data.material_title).join(' / ')}
+          </span>
+        </div>
+      )
+    }
+  </div>
+</a>
+
+<style>
+  .event-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+
+  .event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-content {
+    padding: 1.5rem;
+  }
+
+  .date-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .date {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #6366f1;
+  }
+
+  .time {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    line-height: 1.4;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 4px;
+    color: #0369a1;
+  }
+
+  .material {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 0.85rem;
+  }
+
+  .material-label {
+    color: #6b7280;
+    flex-shrink: 0;
+  }
+
+  .material-title {
+    color: #374151;
+  }
+
+  :global(html[data-theme='dark']) .event-card {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .date {
+    color: #818cf8;
+  }
+
+  :global(html[data-theme='dark']) .time {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) h3 {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .tag {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e3a5f 100%);
+    color: #7dd3fc;
+  }
+
+  :global(html[data-theme='dark']) .material {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .material-label {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) .material-title {
+    color: #e5e7eb;
+  }
+</style>

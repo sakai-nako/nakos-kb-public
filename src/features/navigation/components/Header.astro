@@ -1,0 +1,289 @@
+---
+const pathname = Astro.url.pathname;
+const isActive = (path: string) => pathname === path || pathname.startsWith(`${path}/`);
+---
+
+<header>
+  <nav>
+    <a href="/" class="logo">
+      <span class="logo-text">Nako's Knowledge Base</span>
+    </a>
+    <div class="links">
+      <a
+        href="/blog"
+        class:list={[{ active: isActive('/blog') }]}
+        aria-current={isActive('/blog') ? 'page' : undefined}
+      >
+        Blog
+      </a>
+      <a
+        href="/about"
+        class:list={[{ active: isActive('/about') }]}
+        aria-current={isActive('/about') ? 'page' : undefined}
+      >
+        About
+      </a>
+      <a
+        href="/events"
+        class:list={[{ active: isActive('/events') }]}
+        aria-current={isActive('/events') ? 'page' : undefined}
+      >
+        Events
+      </a>
+      <a
+        href="/novels"
+        class:list={[{ active: isActive('/novels') }]}
+        aria-current={isActive('/novels') ? 'page' : undefined}
+      >
+        Novels
+      </a>
+      <!-- <a href="/slides">Slides</a> -->
+    </div>
+    <div class="theme-menu-wrapper">
+      <button
+        id="theme-toggle"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-controls="theme-menu"
+        aria-label="テーマを選択"
+      >
+        <span class="theme-icon-system" aria-hidden="true">🖥️</span>
+        <span class="theme-icon-light" aria-hidden="true">☀️</span>
+        <span class="theme-icon-dark" aria-hidden="true">🌙</span>
+        <span class="caret" aria-hidden="true">▾</span>
+      </button>
+      <ul id="theme-menu" role="menu" hidden>
+        <li role="menuitem" tabindex="0" data-theme="system">
+          <span aria-hidden="true">🖥️</span> System
+        </li>
+        <li role="menuitem" tabindex="0" data-theme="light">
+          <span aria-hidden="true">☀️</span> Light
+        </li>
+        <li role="menuitem" tabindex="0" data-theme="dark">
+          <span aria-hidden="true">🌙</span> Dark
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<script>
+  import { initThemeToggle } from './themeToggle';
+  initThemeToggle();
+</script>
+
+<style>
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    padding: 1rem 2rem;
+    box-sizing: border-box;
+
+    /* Glassmorphism */
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  nav {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #1a1a1a;
+    transition: transform 0.2s ease;
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .logo:hover {
+    cursor: pointer;
+  }
+
+  .logo-emoji {
+    font-size: 1.5rem;
+  }
+
+  .links {
+    display: flex;
+    gap: 2rem;
+    grid-column: 2;
+  }
+
+  .links a {
+    text-decoration: none;
+    color: #4b5563;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .links a:hover {
+    color: #1a1a1a;
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .links a.active {
+    color: #1a1a1a;
+    background: rgba(99, 102, 241, 0.12);
+  }
+
+  .theme-menu-wrapper {
+    position: relative;
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  #theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 0.4rem 0.6rem;
+    font-size: 1.05rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.2s ease;
+    color: #4b5563;
+  }
+
+  #theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  #theme-toggle .caret {
+    font-size: 0.7rem;
+    color: #6b7280;
+  }
+
+  /* ユーザーが選んでいる pref に応じてアイコンを 1 つだけ表示 */
+  :global(html[data-theme-pref='system']) #theme-toggle .theme-icon-light,
+  :global(html[data-theme-pref='system']) #theme-toggle .theme-icon-dark {
+    display: none;
+  }
+
+  :global(html[data-theme-pref='light']) #theme-toggle .theme-icon-system,
+  :global(html[data-theme-pref='light']) #theme-toggle .theme-icon-dark {
+    display: none;
+  }
+
+  :global(html[data-theme-pref='dark']) #theme-toggle .theme-icon-system,
+  :global(html[data-theme-pref='dark']) #theme-toggle .theme-icon-light {
+    display: none;
+  }
+
+  #theme-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    margin: 0;
+    padding: 0.35rem;
+    list-style: none;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    min-width: 8rem;
+    z-index: 101;
+  }
+
+  #theme-menu li {
+    padding: 0.45rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #1a1a1a;
+    user-select: none;
+  }
+
+  #theme-menu li:hover,
+  #theme-menu li:focus {
+    background: rgba(0, 0, 0, 0.05);
+    outline: none;
+  }
+
+  #theme-menu li[aria-current='true'] {
+    background: rgba(99, 102, 241, 0.12);
+    color: #1a1a1a;
+    font-weight: 600;
+  }
+
+  /* Dark mode support */
+  :global(html[data-theme='dark']) header {
+    background: rgba(18, 18, 18, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .logo {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .links a {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .links a:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .links a.active {
+    color: #fff;
+    background: rgba(129, 140, 248, 0.2);
+  }
+
+  :global(html[data-theme='dark']) #theme-toggle {
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) #theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) #theme-toggle .caret {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) #theme-menu {
+    background: rgba(18, 18, 18, 0.95);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  :global(html[data-theme='dark']) #theme-menu li {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) #theme-menu li:hover,
+  :global(html[data-theme='dark']) #theme-menu li:focus {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) #theme-menu li[aria-current='true'] {
+    background: rgba(129, 140, 248, 0.2);
+    color: #fff;
+  }
+</style>

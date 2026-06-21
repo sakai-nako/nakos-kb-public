@@ -1,0 +1,203 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import ChapterBody from '../../../features/novel/components/ChapterBody.astro';
+import { chapterSlugOf, chaptersOf, novelSlugOf } from '../../../features/novel/utils/chapters';
+
+export async function getStaticPaths() {
+  const novels = await getCollection('novels', ({ data }) => !data.draft);
+  const publishedSlugs = new Set(novels.map((n) => n.data.slug));
+  // 親作品が draft の章、章自身が draft の章を除外
+  const allChapters = await getCollection('novel_chapters', ({ data }) => !data.draft);
+  const chapters = allChapters.filter((c) => publishedSlugs.has(novelSlugOf(c)));
+
+  return chapters.map((chapter) => {
+    const novelSlug = novelSlugOf(chapter);
+    const novel = novels.find((n) => n.data.slug === novelSlug);
+    const siblings = chaptersOf(chapters, novelSlug);
+    const index = siblings.findIndex((c) => c.id === chapter.id);
+
+    return {
+      params: { novel: novelSlug, chapter: chapterSlugOf(chapter) },
+      props: {
+        novel,
+        chapter,
+        prevChapter: siblings[index - 1] ?? null,
+        nextChapter: siblings[index + 1] ?? null,
+      },
+    };
+  });
+}
+
+const { novel, chapter, prevChapter, nextChapter } = Astro.props;
+const novelSlug = novelSlugOf(chapter);
+const kakuyomuUrl = chapter.data.platforms?.kakuyomu?.url;
+---
+
+<Layout>
+  <main>
+    <div class="container">
+      <a href={`/novels/${novelSlug}`} class="back-link">← {novel?.data.title ?? '作品ページ'}</a>
+
+      <article class="chapter">
+        <h1>{chapter.data.title}</h1>
+
+        {
+          kakuyomuUrl && (
+            <p class="platform-link-row">
+              <a href={kakuyomuUrl} target="_blank" rel="noopener" class="platform-link">
+                <span aria-hidden="true">📖</span> カクヨムで読む ↗
+              </a>
+            </p>
+          )
+        }
+
+        <ChapterBody body={chapter.body ?? ''} />
+
+        <nav class="chapter-nav">
+          {
+            prevChapter ? (
+              <a href={`/novels/${novelSlug}/${chapterSlugOf(prevChapter)}`} class="nav-link prev">
+                ← {prevChapter.data.title}
+              </a>
+            ) : (
+              <span />
+            )
+          }
+          {
+            nextChapter && (
+              <a href={`/novels/${novelSlug}/${chapterSlugOf(nextChapter)}`} class="nav-link next">
+                {nextChapter.data.title} →
+              </a>
+            )
+          }
+        </nav>
+      </article>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: #6366f1;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .chapter {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 1.5rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .platform-link-row {
+    text-align: center;
+    margin: 0 0 2rem;
+  }
+
+  .platform-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid rgba(3, 105, 161, 0.2);
+    border-radius: 8px;
+    color: #0369a1;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+  }
+
+  .platform-link:hover {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  }
+
+  .chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-link {
+    color: #6366f1;
+    text-decoration: none;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .nav-link:hover {
+    text-decoration: underline;
+  }
+
+  .nav-link.next {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  @media (max-width: 640px) {
+    main {
+      padding: 1.5rem 1rem;
+    }
+
+    .chapter {
+      padding: 2rem 1.25rem;
+    }
+  }
+
+  :global(html[data-theme='dark']) .back-link,
+  :global(html[data-theme='dark']) .nav-link {
+    color: #818cf8;
+  }
+
+  :global(html[data-theme='dark']) .chapter {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) h1 {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .chapter-nav {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .platform-link {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e3a5f 100%);
+    border-color: rgba(125, 211, 252, 0.25);
+    color: #7dd3fc;
+  }
+
+  :global(html[data-theme='dark']) .platform-link:hover {
+    background: linear-gradient(135deg, #1e4a6f 0%, #1e4a6f 100%);
+  }
+</style>

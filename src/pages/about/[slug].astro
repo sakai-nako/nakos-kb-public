@@ -1,0 +1,35 @@
+---
+import { getCollection } from 'astro:content';
+import AboutEntry from '../../features/about/components/AboutEntry.astro';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('about', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+---
+
+<Layout>
+  <main>
+    <div class="container">
+      <AboutEntry entry={entry} />
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+</style>

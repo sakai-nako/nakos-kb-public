@@ -1,0 +1,231 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import profileImg from '../../../assets/about/profile-composite-01.jpg';
+
+interface Props {
+  profile: CollectionEntry<'about'>;
+  portraits: CollectionEntry<'about'>[];
+}
+
+const { profile, portraits } = Astro.props;
+const { Content: ProfileContent } = await profile.render();
+
+const sortedPortraits = portraits.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
+);
+---
+
+<section class="profile-section">
+  <div class="profile-photo">
+    <Image
+      src={profileImg}
+      alt="sakai-nako のプロフィール写真"
+      widths={[480, 960, 1440]}
+      sizes="(max-width: 720px) 100vw, 720px"
+    />
+  </div>
+  <div class="profile-body">
+    <ProfileContent />
+  </div>
+</section>
+
+<section class="portraits-section">
+  <h2>Self-Portrait</h2>
+  <p class="portraits-intro">
+    （主にAIとの）対話を経て立ち上がった自己観察を、スナップショットとして積み重ねている。
+  </p>
+  <div class="portrait-list">
+    {
+      sortedPortraits.map((entry) => (
+        <a href={`/about/${entry.slug}`} class="portrait-card">
+          <div class="card-content">
+            <span class="date">{entry.data.date}</span>
+            <h3>{entry.data.title}</h3>
+            {entry.data.summary && <p class="summary">{entry.data.summary}</p>}
+          </div>
+        </a>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .profile-section {
+    margin-bottom: 4rem;
+  }
+
+  .profile-photo {
+    max-width: 720px;
+    margin: 0 0 2.5rem;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  }
+
+  .profile-photo :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .profile-body {
+    line-height: 1.7;
+  }
+
+  .profile-body :global(h2) {
+    font-size: 1.5rem;
+    margin: 1.75rem 0 0.75rem;
+    color: #1a1a1a;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding-bottom: 0.25rem;
+    position: relative;
+  }
+
+  .profile-body :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .profile-body :global(.heading-anchor) {
+    margin-left: 0.4em;
+    color: #9ca3af;
+    text-decoration: none;
+    font-weight: normal;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+
+  .profile-body :global(h2:hover .heading-anchor),
+  .profile-body :global(.heading-anchor:focus) {
+    opacity: 1;
+  }
+
+  .profile-body :global(.heading-anchor:hover) {
+    color: #6366f1;
+    text-decoration: none;
+  }
+
+  .profile-body :global(ul) {
+    padding-left: 1.25rem;
+  }
+
+  .profile-body :global(li) {
+    margin: 0.4rem 0;
+  }
+
+  .profile-body :global(a) {
+    color: #6366f1;
+  }
+
+  .portraits-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .portraits-section h2 {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+  }
+
+  .portraits-intro {
+    color: #6b7280;
+    margin: 0 0 1.5rem;
+  }
+
+  .portrait-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .portrait-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+    overflow: hidden;
+  }
+
+  .portrait-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-content {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .date {
+    display: block;
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .portrait-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    line-height: 1.4;
+  }
+
+  .summary {
+    color: #4b5563;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  :global(html[data-theme='dark']) .profile-body {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .profile-body :global(h2) {
+    color: #fff;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .profile-body :global(a) {
+    color: #818cf8;
+  }
+
+  :global(html[data-theme='dark']) .profile-body :global(.heading-anchor) {
+    color: #6b7280;
+  }
+
+  :global(html[data-theme='dark']) .profile-body :global(.heading-anchor:hover) {
+    color: #818cf8;
+  }
+
+  :global(html[data-theme='dark']) .portraits-section {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .portraits-intro {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) .portrait-card {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .date {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) .portrait-card h3 {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .summary {
+    color: #e5e7eb;
+  }
+</style>

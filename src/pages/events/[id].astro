@@ -1,0 +1,342 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const events = await getCollection('events');
+  return events.map((event) => ({
+    params: { id: event.id },
+    props: { event },
+  }));
+}
+
+const { event } = Astro.props;
+const { event_name, start_datetime, end_datetime, event_link, how_relate } = event.data;
+
+// CfP と presentation_material は collection 側の event 参照で逆引きする
+// cfp は応募前（status なし）は非表示。応募済み（submitted/accepted/rejected/withdrawn）になったら出す
+const cfps = (await getCollection('cfp')).filter(
+  (c) => c.data.event?.id === event.id && c.data.status,
+);
+const materials = (await getCollection('presentation_material')).filter(
+  (m) => m.data.event?.id === event.id,
+);
+
+// 日時フォーマット（タイムゾーンを明示指定してCI環境でもJSTで表示）
+const formatDateTime = (dateStr: string) => {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Tokyo',
+  });
+};
+
+const relateLabels = how_relate || [];
+---
+
+<Layout>
+  <main>
+    <div class="container">
+      <a href="/events" class="back-link">← イベント一覧に戻る</a>
+
+      <article class="event-detail">
+        <header>
+          <h1>{event_name}</h1>
+          <div class="meta">
+            <div class="datetime">
+              <span class="label">開催日時</span>
+              <span class="value">
+                {formatDateTime(start_datetime)} -
+                {formatDateTime(end_datetime)}
+              </span>
+            </div>
+            {
+              event_link && (
+                <a href={event_link} target="_blank" rel="noopener" class="event-link">
+                  イベントページを開く ↗
+                </a>
+              )
+            }
+          </div>
+        </header>
+
+        {
+          relateLabels.length > 0 && (
+            <section class="section">
+              <h2>関わり方</h2>
+              <div class="tags">
+                {relateLabels.map((tag: string) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+            </section>
+          )
+        }
+
+        {
+          cfps.length > 0 && (
+            <section class="section">
+              <h2>CfP</h2>
+              {cfps.map((cfp) => (
+                <div class="cfp-item">
+                  {cfp.data.status && <span class="cfp-status">{cfp.data.status}</span>}
+                  <div class="cfp-content">
+                    <h3>{cfp.data.title}</h3>
+                    {cfp.data.url && (
+                      <a href={cfp.data.url} target="_blank" rel="noopener" class="cfp-link">
+                        CfPページを開く ↗
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </section>
+          )
+        }
+
+        {
+          materials.length > 0 && (
+            <section class="section">
+              <h2>発表資料</h2>
+              <ul class="material-list">
+                {materials.map((m) => (
+                  <li>
+                    <a
+                      href={m.data.material_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="material-link"
+                    >
+                      {m.data.material_title} ↗
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+      </article>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: #6366f1;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .event-detail {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    margin: 0 0 1rem;
+    line-height: 1.3;
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .datetime {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .datetime .label {
+    font-size: 0.8rem;
+    color: #6b7280;
+  }
+
+  .datetime .value {
+    font-size: 1rem;
+    color: #1a1a1a;
+  }
+
+  .event-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    width: fit-content;
+  }
+
+  .event-link:hover {
+    opacity: 0.9;
+  }
+
+  .section {
+    margin-bottom: 1.5rem;
+  }
+
+  .section h2 {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0 0 0.75rem;
+    font-weight: 500;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.85rem;
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-radius: 6px;
+    color: #0369a1;
+  }
+
+  .cfp-item + .cfp-item {
+    margin-top: 1rem;
+  }
+
+  .cfp-status {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: #fef3c7;
+    border-radius: 6px;
+    color: #92400e;
+    font-size: 0.9rem;
+  }
+
+  .cfp-content {
+    background: #f9fafb;
+    padding: 1rem;
+    border-radius: 8px;
+    line-height: 1.6;
+    margin-top: 0.75rem;
+  }
+
+  .cfp-content h3 {
+    font-size: 1.1rem;
+    margin: 0 0 0.5rem;
+    color: #1a1a1a;
+  }
+
+  .cfp-link {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+
+  .cfp-link:hover {
+    opacity: 0.9;
+  }
+
+  .material-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .material-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .material-link:hover {
+    opacity: 0.9;
+  }
+
+  :global(html[data-theme='dark']) .back-link {
+    color: #818cf8;
+  }
+
+  :global(html[data-theme='dark']) .event-detail {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) header {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) h1 {
+    color: #fff;
+  }
+
+  :global(html[data-theme='dark']) .datetime .label {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) .datetime .value {
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .section h2 {
+    color: #9ca3af;
+  }
+
+  :global(html[data-theme='dark']) .tag {
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e3a5f 100%);
+    color: #7dd3fc;
+  }
+
+  :global(html[data-theme='dark']) .cfp-status {
+    background: #422006;
+    color: #fcd34d;
+  }
+
+  :global(html[data-theme='dark']) .cfp-content {
+    background: #1f2937;
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .cfp-content h3 {
+    color: #f3f4f6;
+  }
+</style>

@@ -1,0 +1,64 @@
+---
+import Header from '../features/navigation/components/Header.astro';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Nako's Knowledge Base</title>
+    <!-- CSS 読み込み前に <html> の data-theme を確定させて FOUC を回避する -->
+    <script is:inline>
+      (function () {
+        var stored = localStorage.getItem('theme');
+        var pref = 'system';
+        if (stored === 'light' || stored === 'dark') {
+          pref = stored;
+        }
+        var resolved = pref;
+        if (pref === 'system') {
+          resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.dataset.themePref = pref;
+      })();
+    </script>
+  </head>
+  <body>
+    <Header />
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --header-height: 4rem;
+    --bg-base: #f9fafb;
+    --text-base: #1a1a1a;
+  }
+
+  html[data-theme='dark'] {
+    --bg-base: #121212;
+    --text-base: #e5e7eb;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--header-height) + 1rem);
+    background: var(--bg-base);
+    color: var(--text-base);
+  }
+
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  body {
+    background: var(--bg-base);
+    color: var(--text-base);
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import NovelCard from './NovelCard.astro';
+import { novelSlugOf } from '../utils/chapters';
+
+interface Props {
+  novels: CollectionEntry<'novels'>[];
+}
+
+const { novels } = Astro.props;
+
+// 章数は novel_chapters 全件を一度だけ取得して作品単位で集計する（draft 章は除外）
+const allChapters = await getCollection('novel_chapters', ({ data }) => !data.draft);
+const chapterCountBySlug = new Map<string, number>();
+for (const chapter of allChapters) {
+  const slug = novelSlugOf(chapter);
+  chapterCountBySlug.set(slug, (chapterCountBySlug.get(slug) ?? 0) + 1);
+}
+
+// 最終更新日で降順ソート（新しい作品が先）
+const sortedNovels = [...novels].sort(
+  (a, b) => b.data.updated_at.getTime() - a.data.updated_at.getTime(),
+);
+---
+
+<div class="novel-grid">
+  {
+    sortedNovels.map((novel) => (
+      <NovelCard novel={novel} chapterCount={chapterCountBySlug.get(novel.data.slug) ?? 0} />
+    ))
+  }
+</div>
+
+<style>
+  .novel-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+  }
+</style>
