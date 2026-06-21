@@ -1,7 +1,7 @@
 # Nako's Knowledge Base
 
 > [!NOTE]
-> このリポジトリは、私的に運用しているプライベートリポジトリの**フィルタ済み公開ミラー**です (生成元コミット: `63b2b48`)。
+> このリポジトリは、私的に運用しているプライベートリポジトリの**フィルタ済み公開ミラー**です (生成元コミット: `edf0737`)。
 > 個人ディレクトリ (`content-private/`, `content-external/`, `docs/`) の除外と Cloudflare Pages デプロイ workflow の除去を行ったスナップショットを、
 > [scripts/publish-public-mirror.ps1](scripts/publish-public-mirror.ps1) で随時 push しています。
 > private 側に実コミット履歴があるため、このミラーには履歴は含まれません。
