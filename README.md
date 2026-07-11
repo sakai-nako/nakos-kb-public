@@ -1,9 +1,10 @@
 # Nako's Knowledge Base
 
 > [!NOTE]
-> このリポジトリは、私的に運用しているプライベートリポジトリの**フィルタ済み公開ミラー**です (生成元コミット: `edf0737`)。
-> 個人ディレクトリ (`content-private/`, `content-external/`, `docs/`) の除外と Cloudflare Pages デプロイ workflow の除去を行ったスナップショットを、
+> このリポジトリは、私的に運用しているプライベートリポジトリの**フィルタ済み公開ミラー**です (生成元コミット: `e10722b`)。
+> 個人ディレクトリ (`content-private/`, `content-external/`, `docs/`) を除外したスナップショットを、
 > [scripts/publish-public-mirror.ps1](scripts/publish-public-mirror.ps1) で随時 push しています。
+> Web サイト (Cloudflare Pages) はこのミラーへの push をトリガーに GitHub Actions でデプロイされます。
 > private 側に実コミット履歴があるため、このミラーには履歴は含まれません。
 
 ## プロジェクトのAIルール設定 (`.claude/rules`)

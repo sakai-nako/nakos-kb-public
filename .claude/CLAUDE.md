@@ -4,7 +4,8 @@
 
 - ユーザーへの応答・説明はすべて **日本語** で行ってください（韓国語や英語は使わない）。
 - 詳細な規約は [.claude/rules/](./rules/) 配下にあります。本ファイルはオーバービューと索引です。
-- ユーザー（GitHub アカウント `sakai-nako`）自身のリポジトリ情報を参照する際は、`gh` コマンド（`gh repo view`, `gh pr list`, `gh issue view` など）を使用してください。Web 検索や URL 推測ではなく `gh` 経由で確実に取得します。
+- ユーザー（GitHub アカウント `sakai-nako`）自身の GitHub リポジトリ情報を参照する際は、`gh` コマンド（`gh repo view`, `gh pr list`, `gh issue view` など）を使用してください。Web 検索や URL 推測ではなく `gh` 経由で確実に取得します。
+- **本リポジトリの origin はローカル GitLab**（`https://localhost:8930/sakai-nako/nakos-kb`。NixOSInfra distro 上の GitLab CE、インフラ定義は `~/Main/repos/local-new-infra-base/`）。GitLab 側の操作（CI 状態・変数管理等）は `glab` コマンドを使用してください（`glab ci list`, `glab variable list` など）。GitHub 側には バックアップ用の `github` リモート（private）と公開ミラー `nakos-kb-public`（サイトのデプロイはここの GitHub Actions から。「デプロイ」節参照）があります。
 - ローカルのベアリポジトリ（`~/Main/bare-repos/` 配下、現状 `comui-inputs/`, `game-workspace/`, `local-accounting/`, `local-game-workspace/`, `qwen-pose-cli/`）を参照する際は `git -C <path> <command>` で直接アクセスしてください。working tree が無いため、ファイル内容は `git -C ~/Main/bare-repos/<name> show <ref>:<path>` で、ツリー一覧は `git -C ~/Main/bare-repos/<name> ls-tree -r <ref>` で取得します。`.git` 接尾辞は付かない点に注意（ディレクトリ自体がベア）。
 
 ## プロジェクト概要
@@ -26,7 +27,7 @@
 | **Package Manager**| **pnpm**（`packageManager: pnpm@10.x`、`pnpm-lock.yaml`）             |
 | **Task Runner**    | [just](https://just.systems/)（シェルは NuShell）                     |
 | **Lint / Format**  | ESLint + Prettier                                                     |
-| **Deploy**         | Cloudflare Pages（[.github/workflows/deploy.yml](../.github/workflows/deploy.yml)） |
+| **Deploy**         | Cloudflare Pages（公開ミラー `nakos-kb-public` の GitHub Actions。[deploy.yml](../.github/workflows/deploy.yml)）|
 
 詳細は [rules/10-tech-stack.md](./rules/10-tech-stack.md) を参照してください。
 
@@ -38,15 +39,20 @@ nakos-kb/
 │   ├── CLAUDE.md              # 本ファイル（AI エージェント向けオーバービュー）
 │   ├── rules/                 # 詳細ルール（番号体系は README.md 参照）
 │   ├── storytelling/          # ストーリー構成フレームワーク（SSOT。ブログ/スライド/小説横断）
-│   ├── skills/                # Skill（story-structure, novel-revision 等）
+│   ├── anti-slop/             # AI Slop 対策フレームワーク（SSOT。公開前レビュー観点）
+│   ├── coherence/             # 文章の接続度（coherence / cohesion）レビューフレームワーク（SSOT）
+│   ├── skills/                # Skill（story-structure, novel-revision, slop-review, coherence-review 等）
 │   └── agents/                # SubAgent（blog/slide/novel-architect）
 ├── .github/workflows/
-│   └── deploy.yml             # Cloudflare Pages デプロイ
+│   └── deploy.yml             # Cloudflare Pages デプロイ（公開ミラー側で実行される）
+├── .gitlab-ci.yml             # ローカル GitLab CI（品質チェックのみ）
 ├── public/                    # 静的アセット（そのまま配信）
 ├── scripts/
 │   ├── build-slides.mjs       # Slidev 一括ビルド
 │   ├── setup-slides.mjs       # 各デッキへ _shared/ の junction とコピーを冪等に展開
 │   ├── novel-export-kakuyomu.mjs  # 小説章 → カクヨム形式変換
+│   ├── check-content.mjs      # コンテンツの機械的スタイル検査（rules/17 §7 対応）
+│   ├── sns-check.mjs          # X 投稿（生標）の未放流チェック + 今日のセクション準備（SessionStart フックからも利用）
 │   └── build-sim-video.mjs    # リハーサル動画生成（VOICEVOX + Slidev + ffmpeg）
 ├── src/
 │   ├── assets/                # グローバル画像・フォント等
@@ -75,20 +81,21 @@ nakos-kb/
 │       ├── events/{index,[id]}.astro
 │       ├── novels/{index,[novel]/index,[novel]/[chapter]}.astro
 │       └── slides/index.astro
-├── content-external/          # デプロイ対象外（paths-ignore）。サイトに出さないが外部プラットフォームに出すコンテンツ
+├── content-external/          # ミラー・デプロイ対象外（public-mirror-rules で除外）。サイトに出さないが外部プラットフォームに出すコンテンツ
 │   ├── articles/              # ── 記事・エッセイの下書き（note 等が本番）
 │   ├── community/             # ── コミュニティ運営関連のコンテンツ（運営blog記事等）
 │   ├── sns/                   # ── SNS 投稿の下書き・アーカイブ
 │   ├── assets/                # ── 下書きで使う画像等
 │   └── cv/                    # ── 履歴書・職務経歴書（Typst。外部提出物）
-├── content-private/           # デプロイ対象外（paths-ignore）。完全 private（外にも出さない）
+├── content-private/           # ミラー・デプロイ対象外（public-mirror-rules で除外）。完全 private（外にも出さない）
 │   ├── about-sakai-nako/      # ── 自己分析メモ（self-portrait 元データ + swot）
+│   ├── clippings/             # ── 外部記事×自分の関連の蓄積（clip Skill で取り込み。アウトプットの素材）
 │   ├── other/                 # ── その他 private 資料
 │   └── scratch/               # ── 雑メモ（_scratchpad, idea, sns-and-self-introduction）
-├── docs/                      # デプロイ対象外（paths-ignore）。運用ドキュメント
+├── docs/                      # ミラー・デプロイ対象外（public-mirror-rules で除外）。運用ドキュメント
 │   ├── content-restructure.md # ── コンテンツ再編成（4 分類）の追跡ドキュメント
 │   ├── cfp/                   # ── CfP playbook（応募の勝ちパターン等）
-│   └── learnings/             # ── 学び・振り返りの蓄積（playbook.md, retros/）
+│   └── learnings/             # ── 学び・振り返りの蓄積（README.md = 改善ループ運用ガイド, playbook.md, retros/）
 ├── astro.config.mjs
 ├── justfile
 └── package.json
@@ -104,7 +111,8 @@ nakos-kb/
 | :--------------------- | :------------------------------------------------------------------- | :--------------------------------------------------------- |
 | `slides`               | [src/content/slides/](../src/content/slides/)                        | Slidev 原稿（デッキごとに `<slug>/index.md`）              |
 | `events`               | [src/content/events/](../src/content/events/)                        | イベント・カンファレンス参加履歴                           |
-| `cfp`                  | [src/content/cfp/](../src/content/cfp/)                              | CfP 応募（採択／不採択も残す）                            |
+| `cfp`                  | [src/content/cfp/](../src/content/cfp/)                              | CfP 応募の提出本文（`<slug>/index.md`。採択／不採択も残す） |
+| `cfp_drafts`           | [src/content/cfp/](../src/content/cfp/)                              | CfP 応募の校正過程（`<slug>/drafts.md`。Round ログ + 旧案 + 留意事項） |
 | `presentation_material`| [src/content/presentation_material/](../src/content/presentation_material/) | 外部公開した発表資料のメタ（Docswell, Slidev, note 等）|
 | `novels`               | [src/content/novels/](../src/content/novels/)                        | 自作小説の作品メタ（`*/index.md`）                         |
 | `novel_chapters`       | [src/content/novels/](../src/content/novels/)                        | 自作小説の章（`*/NN-*.md`。`_` 始まりは対象外）            |
@@ -126,10 +134,13 @@ nakos-kb/
 | `just build-slides` | Slidev のみビルド                                      |
 | `just preview`      | ビルド成果物のローカルプレビュー                       |
 | `just check`        | ESLint + Prettier チェック                             |
+| `just check-content`| コンテンツの機械的スタイル検査（ベタ詰め / CFP 装飾・所要時間 / 見出しの作業日付。規約は [rules/17-writing-style.md](./rules/17-writing-style.md) §7） |
 | `just format`       | Prettier で整形                                        |
 | `just lint`         | ESLint のみ実行                                        |
 | `just slidev <name>`| 単一デッキを Slidev 開発サーバーで開く（`<name>` は [src/content/slides/](../src/content/slides/) 配下のディレクトリ名。`draft: true` なデッキも同じコマンドで開ける） |
 | `just setup-slides` | 各デッキディレクトリに `_shared/` への junction とコピーを冪等に展開。`_shared/global-bottom.vue` などを編集したら再実行 |
+| `just sns`          | X 投稿（生標）の未放流チェック + 今日のセクションを `content-external/sns/x/content/<year>.md` に用意（本文が空のうちは未放流扱いのまま） |
+| `just sns-status`   | X 投稿（生標）の未放流チェックのみ                     |
 | `just novel-kakuyomu <file>` | 小説の章をカクヨム形式に変換して stdout へ（`\| clip` でクリップボードにコピー） |
 | `just blog-to-zenn <slug>` | blog 記事を Zenn 形式に変換して stdout へ（emoji / type は `platforms.zenn` または既定値、本文冒頭に canonical 注記を自動挿入） |
 | `just cv` / `just cv-watch <name>` | 履歴書・職務経歴書 PDF を Typst でビルド（出力先: `content-external/cv/out/`） |
@@ -137,17 +148,32 @@ nakos-kb/
 
 ## デプロイ
 
-[.github/workflows/deploy.yml](../.github/workflows/deploy.yml) が Cloudflare Pages へのデプロイを担当します。トリガーは **`main` への push** のみ（Web サイトに影響しないファイル — `.claude/`, `.vscode/`, `.github/`, `content-external/`, `content-private/`, `docs/`, README など — は `paths-ignore` で除外）。
+サイトのデプロイは **公開ミラー起点** です。`main` への push だけではサイトは更新されず、`/publish-public-mirror` でフィルタ済みスナップショットを `nakos-kb-public`（GitHub）に push すると、そこで [deploy.yml](../.github/workflows/deploy.yml)（GitHub Actions）が動いて wrangler の direct upload で Cloudflare Pages にデプロイされます。フィルタ（[scripts/public-mirror-rules.psd1](../scripts/public-mirror-rules.psd1) の除外パス + 禁止パターン検査）を通ったものだけがサイトになるため、**個人情報の安全網がサイト公開の手前でも効く**構成です。
 
-スライド差分がない push では Slidev ビルドをスキップする最適化も入っています。
+- **サイトを更新したいとき**: main にコミット → `/publish-public-mirror` を実行（これがデプロイのトリガー）
+- deploy.yml は private 側で管理し、ミラーに配布されて実行されます。`if: github.repository == 'sakai-nako/nakos-kb-public'` のガードにより、バックアップ用 private GitHub リポジトリでは動きません
+- `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` は **nakos-kb-public の Actions Secrets** にのみ存在します
+- ローカル GitLab の CI（[.gitlab-ci.yml](../.gitlab-ci.yml)）は品質チェック（`pnpm check` + `check-content`）のみで、デプロイには関与しません
 
 ## 環境変数
 
-現時点で必須の環境変数はありません（CMS 連携の `NILTO_API_KEY` 等は2026年5月の移行で撤去済み）。秘密情報の扱いは [rules/80-security.md](./rules/80-security.md) を必ず確認してください。
+ローカル開発で必須の環境変数はありません（CMS 連携の `NILTO_API_KEY` 等は2026年5月の移行で撤去済み）。デプロイ用の Cloudflare トークンは公開ミラー `nakos-kb-public` の GitHub Actions Secrets のみに存在します（上記「デプロイ」参照）。秘密情報の扱いは [rules/80-security.md](./rules/80-security.md) を必ず確認してください。
 
 ## ストーリー構成フレームワーク
 
 ブログ・発表資料・小説に共通する「ストーリー構成」の設計フレームワークを [.claude/storytelling/](./storytelling/) に集約しています（物語論ベースの SSOT）。構成づくり・レビューの依頼が来たら [story-structure Skill](./skills/story-structure/SKILL.md)、ゼロからのドラフト生成や自律レビューは媒体別 SubAgent（[blog](./agents/blog-architect.md) / [slide](./agents/slide-architect.md) / [novel](./agents/novel-architect.md)-architect）。起動指針は [rules/36-storytelling.md](./rules/36-storytelling.md)。
+
+## AI Slop 対策
+
+AI で下書きしたブログ・発表資料・SNS から「AI 臭」を抜くための観点・語彙・パターン集を [.claude/anti-slop/](./anti-slop/) に集約しています。公開前レビューの依頼（「AI 臭抜きたい」「校正して」「最終チェック」等）が来たら [slop-review Skill](./skills/slop-review/SKILL.md) を起動。**小説は対象外**で、文章の磨き込みは [novel-revision Skill](./skills/novel-revision/SKILL.md) が担当します。起動指針は [rules/37-anti-slop.md](./rules/37-anti-slop.md)。
+
+## 接続度（Coherence）レビュー
+
+文章の要素（段落・文・句）間の **接続度** を Halliday & Hasan の cohesion / coherence と Rhetorical Structure Theory の接続タイプ語彙で診断・改善するフレームワークを [.claude/coherence/](./coherence/) に集約しています。「接続度を見て」「つながりが弱い」「論理が飛躍している」「先出しした情報が後で生きない」のような合図で [coherence-review Skill](./skills/coherence-review/SKILL.md) を起動。**story-structure（マクロな流れ）と slop-review（語彙・記号）の中間** ── 要素間の意味接続だけに集中します。**小説は対象外**（意図的な飛躍が作家性として機能するため）。起動指針は [rules/38-coherence.md](./rules/38-coherence.md)。
+
+## 改善ループ（Learnings）
+
+「作る → 出す → 測る → 学ぶ → 規約化する」の改善ループの運用手順を [docs/learnings/README.md](../docs/learnings/README.md) に集約しています（ループの地図・retro テンプレ・playbook 昇格基準・四半期棚卸しチェックリスト）。イベント後の振り返りは [retro Skill](./skills/retro/SKILL.md)、四半期末の棚卸しは [quarterly-review Skill](./skills/quarterly-review/SKILL.md) を起動。ユーザーフィードバック由来の表記規約は [rules/17-writing-style.md](./rules/17-writing-style.md) が SSOT で、機械検査できるものは `just check-content` が守ります。**学びの SSOT は必ずリポジトリ内に置き、エージェントのローカルメモリにはポインタだけを残す**のがこのリポジトリの方針です。
 
 ## `.claude/rules/` 索引
 
@@ -159,10 +185,13 @@ nakos-kb/
 | [10-tech-stack.md](./rules/10-tech-stack.md)                       | 技術スタックの詳細                                   |
 | [15-principles.md](./rules/15-principles.md)                       | 開発原則（ドキュメント哲学・リファクタリング順序）   |
 | [16-content-locations.md](./rules/16-content-locations.md)         | コンテンツ/ドキュメントの置き場所ルール（4 分類の判断基準） |
+| [17-writing-style.md](./rules/17-writing-style.md)                 | フィードバック由来の表記・言い回し規約（ベタ詰め、CFP 表記、小説・題材の扱い等の SSOT） |
 | [20-coding-style.md](./rules/20-coding-style.md)                   | Astro / TypeScript コーディング規約                  |
 | [30-architecture.md](./rules/30-architecture.md)                   | ディレクトリ構成と依存関係のルール                   |
 | [35-novels.md](./rules/35-novels.md)                               | 自作小説の原稿管理（配置・記法・frontmatter）       |
 | [36-storytelling.md](./rules/36-storytelling.md)                   | ストーリー構成フレームワークの起動指針（SSOT は storytelling/） |
+| [37-anti-slop.md](./rules/37-anti-slop.md)                         | AI Slop 対策フレームワークの起動指針（SSOT は anti-slop/） |
+| [38-coherence.md](./rules/38-coherence.md)                         | 接続度（coherence / cohesion）レビューフレームワークの起動指針（SSOT は coherence/） |
 | [40-testing.md](./rules/40-testing.md)                             | テスト方針（現状は手動検証）                         |
 | [80-security.md](./rules/80-security.md)                           | シークレット管理と XSS 注意事項                      |
 | [90-docs.md](./rules/90-docs.md)                                   | コミットメッセージ規約（Conventional Commits）       |

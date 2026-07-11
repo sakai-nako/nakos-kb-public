@@ -50,7 +50,7 @@ platforms:
 - 作品メタを更新したら `updated_at` も更新してください。
 - 変換スクリプトやサイトのレンダラー（[renderNovelBody.ts](../../src/features/novel/utils/renderNovelBody.ts)）が壊れそうな変更（記法の揺れ、命名規則破り、`#` 見出し追加など）を提案しないでください。
 - ルビ記号の全角 `｜` / 半角 `|` 混在を見つけたら指摘してください。
-- `src/content/novels/` への push は Cloudflare Pages への**公開デプロイを伴う**ことを意識してください（`paths-ignore` 対象外）。
+- `src/content/novels/` は**公開ミラー経由でサイトにデプロイされます**（`/publish-public-mirror` 実行時）。ミラー公開の際に章がサイトに出ることを意識してください（非公開の章は `draft: true` で制御）。
 
 ## 6. 関連スキル・フレームワーク
 

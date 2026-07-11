@@ -14,10 +14,17 @@ const { event } = Astro.props;
 const { event_name, start_datetime, end_datetime, event_link, how_relate } = event.data;
 
 // CfP と presentation_material は collection 側の event 参照で逆引きする
-// cfp は応募前（status なし）は非表示。応募済み（submitted/accepted/rejected/withdrawn）になったら出す
+// cfp は draft: true（個別非公開）の場合のみ非表示。status の有無で表示判定はしない（応募予定も含めて出す）
 const cfps = (await getCollection('cfp')).filter(
-  (c) => c.data.event?.id === event.id && c.data.status,
+  (c) => c.data.event?.id === event.id && !c.data.draft,
 );
+
+const cfpStatusLabels: Record<string, string> = {
+  submitted: '応募済み',
+  accepted: '採択',
+  rejected: '不採択',
+  withdrawn: '取り下げ',
+};
 const materials = (await getCollection('presentation_material')).filter(
   (m) => m.data.event?.id === event.id,
 );
@@ -83,14 +90,21 @@ const relateLabels = how_relate || [];
               <h2>CfP</h2>
               {cfps.map((cfp) => (
                 <div class="cfp-item">
-                  {cfp.data.status && <span class="cfp-status">{cfp.data.status}</span>}
+                  <span class:list={['cfp-status', cfp.data.status ?? 'planned']}>
+                    {cfp.data.status ? cfpStatusLabels[cfp.data.status] : '応募予定'}
+                  </span>
                   <div class="cfp-content">
                     <h3>{cfp.data.title}</h3>
-                    {cfp.data.url && (
-                      <a href={cfp.data.url} target="_blank" rel="noopener" class="cfp-link">
-                        CfPページを開く ↗
+                    <div class="cfp-actions">
+                      <a href={`/cfp/${cfp.id}`} class="cfp-internal-link">
+                        サイトで読む →
                       </a>
-                    )}
+                      {cfp.data.url && (
+                        <a href={cfp.data.url} target="_blank" rel="noopener" class="cfp-link">
+                          CfPページを開く ↗
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -235,10 +249,36 @@ const relateLabels = how_relate || [];
   .cfp-status {
     display: inline-block;
     padding: 0.375rem 0.75rem;
-    background: #fef3c7;
     border-radius: 6px;
-    color: #92400e;
     font-size: 0.9rem;
+    font-weight: 500;
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .cfp-status.planned {
+    background: #e0e7ff;
+    color: #4338ca;
+  }
+
+  .cfp-status.submitted {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .cfp-status.accepted {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .cfp-status.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .cfp-status.withdrawn {
+    background: #e5e7eb;
+    color: #4b5563;
   }
 
   .cfp-content {
@@ -253,6 +293,28 @@ const relateLabels = how_relate || [];
     font-size: 1.1rem;
     margin: 0 0 0.5rem;
     color: #1a1a1a;
+  }
+
+  .cfp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .cfp-internal-link {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: #f3f4f6;
+    color: #4b5563;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .cfp-internal-link:hover {
+    background: #e5e7eb;
   }
 
   .cfp-link {
@@ -327,13 +389,48 @@ const relateLabels = how_relate || [];
   }
 
   :global(html[data-theme='dark']) .cfp-status {
+    background: #374151;
+    color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .cfp-status.planned {
+    background: #312e81;
+    color: #c7d2fe;
+  }
+
+  :global(html[data-theme='dark']) .cfp-status.submitted {
     background: #422006;
     color: #fcd34d;
+  }
+
+  :global(html[data-theme='dark']) .cfp-status.accepted {
+    background: #14532d;
+    color: #86efac;
+  }
+
+  :global(html[data-theme='dark']) .cfp-status.rejected {
+    background: #7f1d1d;
+    color: #fecaca;
+  }
+
+  :global(html[data-theme='dark']) .cfp-status.withdrawn {
+    background: #1f2937;
+    color: #d1d5db;
   }
 
   :global(html[data-theme='dark']) .cfp-content {
     background: #1f2937;
     color: #e5e7eb;
+  }
+
+  :global(html[data-theme='dark']) .cfp-internal-link {
+    background: #1f2937;
+    color: #e5e7eb;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(html[data-theme='dark']) .cfp-internal-link:hover {
+    background: #374151;
   }
 
   :global(html[data-theme='dark']) .cfp-content h3 {

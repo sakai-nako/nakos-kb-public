@@ -13,6 +13,8 @@ export default tseslint.config(
       'node_modules/**',
       'dist/**',
       '.astro/**',
+      // GitLab CI の pnpm store キャッシュ (CI ではプロジェクト内に置かれる)
+      '.pnpm-store/**',
       'public/**',
       // <script> を含む .astro は astro-eslint-parser がパースに失敗するため除外。
       // Prettier 側 (`prettier --check`) でフォーマットチェックは確保している。

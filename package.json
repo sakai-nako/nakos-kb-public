@@ -8,7 +8,8 @@
             "esbuild",
             "playwright-chromium",
             "sharp",
-            "vue-demi"
+            "vue-demi",
+            "workerd"
         ]
     },
     "scripts": {
@@ -49,6 +50,7 @@
         "slidev-theme-unicorn": "^1.1.2",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.53.1",
-        "vue-eslint-parser": "^10.2.0"
+        "vue-eslint-parser": "^10.2.0",
+        "wrangler": "^4.110.0"
     }
 }

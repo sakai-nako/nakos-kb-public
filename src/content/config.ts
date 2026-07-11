@@ -39,10 +39,17 @@ const events = defineCollection({
 
 const cfp = defineCollection({
   // 1 CFP = 1 ディレクトリ（<slug>/index.md）。`_` 始まりの補助ファイル（_memo.md など）はパターンに合致しないため対象外
-  loader: glob({ pattern: '*/index.md', base: './src/content/cfp' }),
+  // generateId: id を `<slug>/index` → `<slug>` に正規化（URL ルーティングと cfp_drafts との対応で扱いやすく）
+  loader: glob({
+    pattern: '*/index.md',
+    base: './src/content/cfp',
+    generateId: ({ entry }) => entry.replace(/\/index\.md$/, ''),
+  }),
   schema: z.object({
     title: z.string(),
-    // 応募前は status なし（events 逆引き表示でも非表示）。応募したら submitted を入れる。
+    // /cfp/<slug> 専用ページの生成可否。デフォルト false（公開）。完全に下書きで隠したい場合のみ true
+    draft: z.boolean().default(false),
+    // 応募の進行状態。応募前は未設定（events 詳細ページの CFP セクションでは未設定のものは非表示）。応募したら submitted を入れる。draft とは独立した軸
     status: z.enum(['submitted', 'accepted', 'rejected', 'withdrawn']).optional(),
     submitted_at: z.string(),
     event: reference('events').nullish(),
@@ -50,6 +57,18 @@ const cfp = defineCollection({
     target_audience: z.string().optional(),
     hook: z.string().optional(),
     tags: z.array(z.string()).optional(),
+  }),
+});
+
+const cfp_drafts = defineCollection({
+  // 校正過程ドキュメント（<slug>/drafts.md）。id を cfp と揃えることで getEntry('cfp_drafts', cfp.id) で参照できる
+  loader: glob({
+    pattern: '*/drafts.md',
+    base: './src/content/cfp',
+    generateId: ({ entry }) => entry.replace(/\/drafts\.md$/, ''),
+  }),
+  schema: z.object({
+    title: z.string(),
   }),
 });
 
@@ -140,6 +159,7 @@ export const collections = {
   presentation_material,
   events,
   cfp,
+  cfp_drafts,
   novels,
   novel_chapters,
   about,

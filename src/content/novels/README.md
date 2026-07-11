@@ -4,7 +4,7 @@
 
 - Content Collections の `novels`（作品メタ = `<作品 slug>/index.md`）と `novel_chapters`（章 = `NN-*.md`）として [src/content/config.ts](../config.ts) に定義されています。glob パターンに合致しない `_` 始まりの補助ファイル・本 README は公開対象外です。
 - ページは `src/pages/novels/`（一覧 → 作品 → 章）、表示ロジックは `src/features/novel/`（ルビ・傍点・場面転換のレンダリングを含む）にあります。
-- `main` への push で Cloudflare Pages に**デプロイされます**（`paths-ignore` 対象外）。
+- 公開ミラーの publish（`/publish-public-mirror`）で Cloudflare Pages に**デプロイされます**（`main` への push だけではサイトは更新されません）。
 
 AI エージェント（Claude など）向けのルールは [../../../.claude/rules/35-novels.md](../../../.claude/rules/35-novels.md) にあります。本 README が**共通記法とディレクトリ構造の Single Source of Truth** です。
 

@@ -1,0 +1,305 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const cfps = await getCollection('cfp', ({ data }) => !data.draft);
+  return cfps.map((cfp) => ({
+    params: { slug: cfp.id },
+    props: { cfp },
+  }));
+}
+
+const { cfp } = Astro.props;
+const { Content } = await render(cfp);
+const { title, submitted_at, status, url, event } = cfp.data;
+
+// 校正過程の存在チェック（あれば「校正過程を見る」リンクを出す）
+const drafts = await getEntry('cfp_drafts', cfp.id);
+
+// イベント情報
+const eventData = event ? await getEntry(event) : null;
+
+const statusLabels: Record<string, string> = {
+  submitted: '応募済み',
+  accepted: '採択',
+  rejected: '不採択',
+  withdrawn: '取り下げ',
+};
+---
+
+<Layout>
+  <main>
+    <div class="container">
+      <a href="/events" class="back-link">← イベント一覧に戻る</a>
+
+      <article class="cfp-detail">
+        <header>
+          <div class="meta-row">
+            {status && <span class:list={['status', status]}>{statusLabels[status]}</span>}
+            {
+              eventData && (
+                <a href={`/events/${eventData.id}`} class="event-link">
+                  {eventData.data.event_name}
+                </a>
+              )
+            }
+          </div>
+          <h1>{title}</h1>
+          <p class="submitted-at">応募日: {submitted_at}</p>
+          <div class="actions">
+            {
+              url && (
+                <a href={url} target="_blank" rel="noopener" class="external-link">
+                  CfPページを開く ↗
+                </a>
+              )
+            }
+            {
+              drafts && (
+                <a href={`/cfp/${cfp.id}/drafts`} class="drafts-link">
+                  校正過程を見る →
+                </a>
+              )
+            }
+          </div>
+        </header>
+
+        <div class="content">
+          <Content />
+        </div>
+      </article>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: #6366f1;
+    text-decoration: none;
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .cfp-detail {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .status {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .status.submitted {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .status.accepted {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .status.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .status.withdrawn {
+    background: #e5e7eb;
+    color: #4b5563;
+  }
+
+  .event-link {
+    font-size: 0.85rem;
+    color: #6366f1;
+    text-decoration: none;
+  }
+
+  .event-link:hover {
+    text-decoration: underline;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 1rem;
+    line-height: 1.4;
+  }
+
+  .submitted-at {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .external-link {
+    display: inline-block;
+    padding: 0.45rem 0.9rem;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .external-link:hover {
+    opacity: 0.9;
+  }
+
+  .drafts-link {
+    display: inline-block;
+    padding: 0.45rem 0.9rem;
+    background: #f3f4f6;
+    color: #4b5563;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .drafts-link:hover {
+    background: #e5e7eb;
+  }
+
+  .content {
+    line-height: 1.8;
+    color: #1f2937;
+  }
+
+  .content :global(h2) {
+    font-size: 1.15rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+  }
+
+  .content :global(h3) {
+    font-size: 1rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #4b5563;
+  }
+
+  .content :global(p) {
+    margin: 0 0 1em;
+  }
+
+  .content :global(a) {
+    color: #6366f1;
+  }
+
+  .content :global(code) {
+    background: #f3f4f6;
+    padding: 0.1em 0.3em;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  /* Dark theme */
+  :global(html[data-theme='dark']) .back-link {
+    color: #818cf8;
+  }
+  :global(html[data-theme='dark']) .cfp-detail {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  :global(html[data-theme='dark']) header {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  :global(html[data-theme='dark']) .status {
+    background: #374151;
+    color: #e5e7eb;
+  }
+  :global(html[data-theme='dark']) .status.submitted {
+    background: #422006;
+    color: #fcd34d;
+  }
+  :global(html[data-theme='dark']) .status.accepted {
+    background: #14532d;
+    color: #86efac;
+  }
+  :global(html[data-theme='dark']) .status.rejected {
+    background: #7f1d1d;
+    color: #fecaca;
+  }
+  :global(html[data-theme='dark']) .status.withdrawn {
+    background: #1f2937;
+    color: #d1d5db;
+  }
+  :global(html[data-theme='dark']) h1 {
+    color: #fff;
+  }
+  :global(html[data-theme='dark']) .submitted-at {
+    color: #9ca3af;
+  }
+  :global(html[data-theme='dark']) .event-link {
+    color: #818cf8;
+  }
+  :global(html[data-theme='dark']) .drafts-link {
+    background: #1f2937;
+    color: #e5e7eb;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  :global(html[data-theme='dark']) .drafts-link:hover {
+    background: #374151;
+  }
+  :global(html[data-theme='dark']) .content {
+    color: #e5e7eb;
+  }
+  :global(html[data-theme='dark']) .content :global(h2) {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f3f4f6;
+  }
+  :global(html[data-theme='dark']) .content :global(h3) {
+    color: #d1d5db;
+  }
+  :global(html[data-theme='dark']) .content :global(code) {
+    background: #1f2937;
+    color: #e5e7eb;
+  }
+</style>

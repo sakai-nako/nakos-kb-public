@@ -36,6 +36,7 @@ Feature-based Architectureを採用し、機能ごとの凝集度を高める構
     - 新規 collection は `glob()` loader を使ってください（`type: 'content'` は v5 で deprecated）。
 - **リレーション**: `events` を hub とした片方向参照。`cfp` / `presentation_material` / `slides` が frontmatter で `event: <event-slug>` を持ち、Astro の `reference('events')` で型安全に結合します。逆引きは `getCollection('cfp', e => e.data.event?.id === eventId)` のパターン。
 - **novels の親子対応**: `novels`（作品メタ）と `novel_chapters`（章）は frontmatter 参照ではなく、章エントリ id のディレクトリ部分（`<作品 slug>/NN-…`）で対応付けます（章ファイルの frontmatter を `title` のみに保つ規約のため）。導出ロジックは [src/features/novel/utils/chapters.ts](../../src/features/novel/utils/chapters.ts)。
+- **cfp の親子対応**: `cfp`（提出本文 = `<slug>/index.md`）と `cfp_drafts`（校正過程 = `<slug>/drafts.md`）は同一 id（`<slug>`）で対応付けます。両方とも loader の `generateId` で `/index.md` / `/drafts.md` を除去して id を正規化しているため、`getEntry('cfp_drafts', cfp.id)` で校正過程を取得できます。`_memo.md` は `_` で始まるため Collection 対象外（作業メモ）。
 
 ### `src/assets/`
 

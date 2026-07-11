@@ -35,6 +35,11 @@ preview:
 check:
     pnpm check
 
+# Mechanical content style checks (ベタ詰め / CFP 装飾・所要時間 / 見出しの作業日付)
+# Rules SSOT: .claude/rules/17-writing-style.md §7
+check-content:
+    node scripts/check-content.mjs
+
 # Prettier format only
 format:
     pnpm format
@@ -67,6 +72,14 @@ novel-kakuyomu file:
 #   macOS:   just blog-to-zenn <slug> | pbcopy
 blog-to-zenn slug:
     node scripts/blog-to-zenn.mjs {{slug}}
+
+# X 投稿（生標）の未放流チェック + 今日のセクションを content-external/sns/x/content/<year>.md に用意
+sns:
+    node scripts/sns-check.mjs --scaffold
+
+# X 投稿（生標）の未放流チェックのみ
+sns-status:
+    node scripts/sns-check.mjs
 
 # Build CV PDFs (履歴書・職務経歴書) into content-external/cv/out/
 cv:

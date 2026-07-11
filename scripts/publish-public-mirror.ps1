@@ -100,8 +100,9 @@ $notice = @'
 
 > [!NOTE]
 > このリポジトリは、私的に運用しているプライベートリポジトリの**フィルタ済み公開ミラー**です (生成元コミット: `{0}`)。
-> 個人ディレクトリ (`content-private/`, `content-external/`, `docs/`) の除外と Cloudflare Pages デプロイ workflow の除去を行ったスナップショットを、
+> 個人ディレクトリ (`content-private/`, `content-external/`, `docs/`) を除外したスナップショットを、
 > [scripts/publish-public-mirror.ps1](scripts/publish-public-mirror.ps1) で随時 push しています。
+> Web サイト (Cloudflare Pages) はこのミラーへの push をトリガーに GitHub Actions でデプロイされます。
 > private 側に実コミット履歴があるため、このミラーには履歴は含まれません。
 '@ -f $short
 $readmePath = Join-Path $stage 'README.md'

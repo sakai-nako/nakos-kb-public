@@ -17,6 +17,8 @@
 
 - **Skill と SubAgent の住み分け**: Skill はメインスレッドで一緒に考える（論点を小出しにする）。SubAgent は別コンテキストに投げ込み、レビュー結果や構成案を**まとめて受け取る**。重い／自己完結したタスクは SubAgent へ。
 - 小説の**推敲（文章レベル）**は構成論ではなく [novel-revision Skill](../skills/novel-revision/SKILL.md) の領分。構成（プロット・章立て）の相談は本フレームワーク、文章の磨き込みは novel-revision、と切り分ける。
+- **接続度（要素間の意味接続）**は構成論ではなく [coherence-review Skill](../skills/coherence-review/SKILL.md) の領分（SSOT: [coherence/](../coherence/)）。マクロな流れの設計は本フレームワーク、段落・文単位のつなぎ方の診断は coherence、と切り分ける。
+- **文章の臭み抜き（語彙・記号・装飾）**は [slop-review Skill](../skills/slop-review/SKILL.md) の領分（SSOT: [anti-slop/](../anti-slop/)）。
 
 ## 3. 注意
 
