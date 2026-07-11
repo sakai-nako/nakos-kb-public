@@ -5,7 +5,7 @@
 - ユーザーへの応答・説明はすべて **日本語** で行ってください（韓国語や英語は使わない）。
 - 詳細な規約は [.claude/rules/](./rules/) 配下にあります。本ファイルはオーバービューと索引です。
 - ユーザー（GitHub アカウント `sakai-nako`）自身の GitHub リポジトリ情報を参照する際は、`gh` コマンド（`gh repo view`, `gh pr list`, `gh issue view` など）を使用してください。Web 検索や URL 推測ではなく `gh` 経由で確実に取得します。
-- **本リポジトリの origin はローカル GitLab**（`https://localhost:8930/sakai-nako/nakos-kb`。NixOSInfra distro 上の GitLab CE、インフラ定義は `~/Main/repos/local-new-infra-base/`）。GitLab 側の操作（CI 状態・変数管理等）は `glab` コマンドを使用してください（`glab ci list`, `glab variable list` など）。GitHub 側には バックアップ用の `github` リモート（private）と公開ミラー `nakos-kb-public`（サイトのデプロイはここの GitHub Actions から。「デプロイ」節参照）があります。
+- **本リポジトリの origin はローカル GitLab**（`https://localhost:8930/sakai-nako/nakos-kb`。NixOSInfra distro 上の GitLab CE、インフラ定義は `~/Main/repos/local-new-infra-base/`）。GitLab 側の操作（CI 状態・変数管理等）は `glab` コマンドを使用してください（`glab ci list`, `glab variable list` など）。GitHub 側には バックアップ用の `github` リモート（private）と公開ミラー `nakos-kb-public`（サイトのデプロイはここの GitHub Actions から。「デプロイ」節参照）があります。origin には push URL が 2 つ設定されており（GitLab HTTPS + GitHub SSH）、`git push origin` だけで両方に push されます（バックアップの同期漏れ防止。ローカル git config なのでクローンし直したら再設定が必要）。
 - ローカルのベアリポジトリ（`~/Main/bare-repos/` 配下、現状 `comui-inputs/`, `game-workspace/`, `local-accounting/`, `local-game-workspace/`, `qwen-pose-cli/`）を参照する際は `git -C <path> <command>` で直接アクセスしてください。working tree が無いため、ファイル内容は `git -C ~/Main/bare-repos/<name> show <ref>:<path>` で、ツリー一覧は `git -C ~/Main/bare-repos/<name> ls-tree -r <ref>` で取得します。`.git` 接尾辞は付かない点に注意（ディレクトリ自体がベア）。
 
 ## プロジェクト概要
@@ -151,7 +151,7 @@ nakos-kb/
 サイトのデプロイは **公開ミラー起点** です。`main` への push だけではサイトは更新されず、`/publish-public-mirror` でフィルタ済みスナップショットを `nakos-kb-public`（GitHub）に push すると、そこで [deploy.yml](../.github/workflows/deploy.yml)（GitHub Actions）が動いて wrangler の direct upload で Cloudflare Pages にデプロイされます。フィルタ（[scripts/public-mirror-rules.psd1](../scripts/public-mirror-rules.psd1) の除外パス + 禁止パターン検査）を通ったものだけがサイトになるため、**個人情報の安全網がサイト公開の手前でも効く**構成です。
 
 - **サイトを更新したいとき**: main にコミット → `/publish-public-mirror` を実行（これがデプロイのトリガー）
-- deploy.yml は private 側で管理し、ミラーに配布されて実行されます。`if: github.repository == 'sakai-nako/nakos-kb-public'` のガードにより、バックアップ用 private GitHub リポジトリでは動きません
+- deploy.yml は private 側で管理し、ミラーに配布されて実行されます。`if: github.repository == 'sakai-nako/nakos-kb-public'` のガードに加え、バックアップ用 private GitHub リポジトリは **Actions 自体を無効化済み**（リポジトリ設定）なので二重に動きません
 - `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` は **nakos-kb-public の Actions Secrets** にのみ存在します
 - ローカル GitLab の CI（[.gitlab-ci.yml](../.gitlab-ci.yml)）は品質チェック（`pnpm check` + `check-content`）のみで、デプロイには関与しません
 
