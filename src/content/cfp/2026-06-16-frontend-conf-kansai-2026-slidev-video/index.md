@@ -1,7 +1,9 @@
 ---
-title: "『リハする』のたびに、気が重い ─ SREが発表準備のToilを削った話"
-submitted_at: "2026-06-16"
+title: "発表のフロントエンド、テストできますか？ 〜SREがSlidev × VOICEVOXで発表準備のToilを削った話〜"
+status: "submitted"
+submitted_at: "2026-06-28"
 event: "2026-10-12-frontend-conf-kansai-2026"
+url: "https://fortee.jp/fec-kansai-2026/proposal/f888fff8-ed60-4a1a-90ac-a9007b658671"
 ---
 ## トークタイトル（70文字以内）
 

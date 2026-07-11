@@ -1,7 +1,7 @@
 # Nako's Knowledge Base
 
 > [!NOTE]
-> このリポジトリは、私的に運用しているプライベートリポジトリの**フィルタ済み公開ミラー**です (生成元コミット: `6f55c1b`)。
+> このリポジトリは、私的に運用しているプライベートリポジトリの**フィルタ済み公開ミラー**です (生成元コミット: `4465f02`)。
 > 個人ディレクトリ (`content-private/`, `content-external/`, `docs/`) を除外したスナップショットを、
 > [scripts/publish-public-mirror.ps1](scripts/publish-public-mirror.ps1) で随時 push しています。
 > Web サイト (Cloudflare Pages) はこのミラーへの push をトリガーに GitHub Actions でデプロイされます。

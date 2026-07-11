@@ -1,7 +1,9 @@
 ---
-title: "フロントエンド発のFSDを、自作のRust製ゲームエンジンに持ち込んだ話"
-submitted_at: "2026-06-16"
+title: "フロントエンド発のFeature-Sliced Designを、自作のRust製ゲームエンジンに持ち込んだ話"
+status: "submitted"
+submitted_at: "2026-06-28"
 event: "2026-10-12-frontend-conf-kansai-2026"
+url: "https://fortee.jp/fec-kansai-2026/proposal/839a1ba7-be8e-404f-bc37-f058bce8dd9c"
 ---
 ## トークタイトル（70文字以内）
 

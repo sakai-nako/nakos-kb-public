@@ -1,5 +1,5 @@
 ---
-title: "校正過程: フロントエンド発のFSDをRust製ゲームエンジンで守らせた話"
+title: "校正過程: フロントエンド発のFeature-Sliced Designを、自作のRust製ゲームエンジンに持ち込んだ話"
 ---
 
 CNK 2026 採択 abstract の「型」を移植し、Round 1〜5 のレビューと改善を経た記録。
