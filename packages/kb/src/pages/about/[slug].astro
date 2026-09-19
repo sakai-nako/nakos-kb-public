@@ -1,0 +1,17 @@
+---
+import AboutBody from '../../components/AboutBody.astro';
+import Base from '../../layouts/Base.astro';
+import { aboutEntries, aboutEntry } from '../../shared/about';
+export function getStaticPaths() { return aboutEntries().map((entry) => ({ params: { slug: entry.slug } })); }
+const entry = aboutEntry(Astro.params.slug ?? '');
+if (!entry) return Astro.redirect('/404');
+---
+<Base title={entry.title} canonical={`/about/${entry.slug}`}>
+  <article class="nk-reading nk-prose">
+    <a class="nk-back-link" href="/about">About 一覧へ戻る</a>
+    <p class="nk-eyebrow">{entry.type}</p>
+    <h1>{entry.title}</h1>
+    <p class="meta">{entry.summary}</p>
+    <AboutBody body={entry.body} />
+  </article>
+</Base>

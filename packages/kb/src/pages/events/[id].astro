@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro';
+import { cfpsForEvent } from '../../shared/cfp';
+import { event, events, formatJst } from '../../shared/events';
+import { cfpPath, eventPath, slidesPath } from '../../shared/public-paths';
+import { decksForEvent } from '../../shared/slides';
+export function getStaticPaths() {
+  return events().map((item) => ({ params: { id: item.id } }));
+}
+const item = event(Astro.params.id ?? '');
+if (!item) return Astro.redirect('/404');
+const proposals = cfpsForEvent(item.id);
+const slideDecks = decksForEvent(item.id);
+const statusLabels: Record<string, string> = { submitted: '応募済み', accepted: '採択', rejected: '不採択', withdrawn: '取り下げ' };
+---
+<Base title={item.event_name} canonical={eventPath(item.id)}>
+  <article class="nk-reading">
+    <a class="nk-back-link" href="/events">イベント一覧に戻る</a>
+    <p class="nk-eyebrow">Event</p>
+    <h1>{item.event_name}</h1>
+    <p class="nk-card__meta">開催日時: {formatJst(item.start_datetime, 'datetime')} - {formatJst(item.end_datetime, 'datetime')}</p>
+    {item.event_link && <p><a href={item.event_link} target="_blank" rel="noopener noreferrer">イベントページを開く</a></p>}
+    {item.how_relate.length > 0 && (
+      <section>
+        <h2>関わり方</h2>
+        <ul class="nk-chip-list" role="list">{item.how_relate.map((tag) => <li class="nk-chip">{tag}</li>)}</ul>
+      </section>
+    )}
+    {proposals.length > 0 && (
+      <section>
+        <h2>CfP</h2>
+        <ul>{proposals.map((proposal) => (
+          <li>
+            <a href={cfpPath(proposal.id)}>サイトで読む</a>
+            <span class="nk-card__meta"> {proposal.title}</span>
+            <ul class="nk-chip-list" role="list"><li class="nk-chip">{proposal.status ? statusLabels[proposal.status] : '応募予定'}</li></ul>
+            {proposal.url && <a href={proposal.url} target="_blank" rel="noopener noreferrer">CfPページを開く</a>}
+          </li>
+        ))}</ul>
+      </section>
+    )}
+    {slideDecks.length > 0 && (
+      <section>
+        <h2>スライド</h2>
+        <ul>{slideDecks.map((deck) => <li><a href={slidesPath(deck.id)} target="_blank" rel="noopener noreferrer">{deck.title}</a></li>)}</ul>
+      </section>
+    )}
+    {item.materials.length > 0 && (
+      <section>
+        <h2>発表資料</h2>
+        <ul>{item.materials.map((material) => <li><a href={material.url} target="_blank" rel="noopener noreferrer">{material.title}</a>{material.platform && <span class="meta"> ({material.platform})</span>}</li>)}</ul>
+      </section>
+    )}
+  </article>
+</Base>

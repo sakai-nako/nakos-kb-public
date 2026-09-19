@@ -1,0 +1,19 @@
+node_modules/
+.astro/
+dist/
+test-results/
+.projection-review/
+
+# ビルド時に slides/_shared から各デッキへ配る部品 (正本は slides/_shared のみ)。
+src/content/slides/*/components
+src/content/slides/*/slide-images
+src/content/slides/*/global-bottom.vue
+src/content/slides/*/vite.config.ts
+tests/fixtures/slides/*/components
+tests/fixtures/slides/*/slide-images
+tests/fixtures/slides/*/global-bottom.vue
+tests/fixtures/slides/*/vite.config.ts
+
+# ローカル設定 (他パッケージと同じく Git 管理外)。
+.env
+.env.local

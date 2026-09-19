@@ -1,0 +1,144 @@
+/*
+ * デザイントークンの正本。CSS custom properties のみで表現する
+ * (フレームワーク非依存 — Lit にも Astro にも素の HTML にも効く)。
+ *
+ * 命名: --nk-* が自前トークン。Shoelace (--sl-*) へのマッピングは
+ * このファイルの後半で行い、コンポーネント実装は --sl-* ではなく
+ * できるだけ --nk-* を参照する。
+ *
+ * 使い方: アプリ側で Shoelace の light テーマ CSS を読み込んだ「後に」
+ * このファイルを読み込む (後勝ちで上書きするため)。
+ */
+
+:root {
+  /* ---- カラー: ニュートラル (青みグレー) ---- */
+  --nk-color-neutral-0: #ffffff;
+  --nk-color-neutral-50: #f8fafc;
+  --nk-color-neutral-100: #f1f5f9;
+  --nk-color-neutral-200: #e2e8f0;
+  --nk-color-neutral-300: #cbd5e1;
+  --nk-color-neutral-400: #94a3b8;
+  --nk-color-neutral-500: #64748b;
+  --nk-color-neutral-600: #475569;
+  --nk-color-neutral-700: #334155;
+  --nk-color-neutral-800: #1e293b;
+  --nk-color-neutral-900: #0f172a;
+
+  /* ---- カラー: プライマリ (teal 系。ローカルツール群の顔) ---- */
+  --nk-color-primary-50: #f0fdfa;
+  --nk-color-primary-100: #ccfbf1;
+  --nk-color-primary-200: #99f6e4;
+  --nk-color-primary-300: #5eead4;
+  --nk-color-primary-400: #2dd4bf;
+  --nk-color-primary-500: #14b8a6;
+  --nk-color-primary-600: #0d9488;
+  --nk-color-primary-700: #0f766e;
+  --nk-color-primary-800: #115e59;
+  --nk-color-primary-900: #134e4a;
+
+  /* ---- カラー: セマンティック (文字・アイコン。既定の明るい背景の上で使う) ---- */
+  --nk-color-danger: #dc2626;
+  --nk-color-warning: #d97706;
+  --nk-color-success: #16a34a;
+
+  /*
+   * セマンティックの「面」— バナーや注意書きのように背景を塗る表示の 3 点セット
+   * (背景 / 枠 / その面の上の文字)。neutral が青みグレー・primary が teal なのに
+   * 合わせて、危険は赤・注意は琥珀の同系スケール (100 / 200 / 800 相当) で揃える。
+   *
+   * 面の上の文字に上の --nk-color-danger / -warning を使わないのは、bg との
+   * コントラストが 3〜4:1 程度しかなく本文サイズ (14px) に足りないため
+   * (-text は同じ色相の暗い側で 6:1 以上を確保している)。
+   *
+   * success の面は使う場所が現れてから足す (抽出型 — 先回りで作らない)。
+   */
+  --nk-color-danger-bg: #fee2e2;
+  --nk-color-danger-border: #fecaca;
+  --nk-color-danger-text: #991b1b;
+  --nk-color-warning-bg: #fef3c7;
+  --nk-color-warning-border: #fde68a;
+  --nk-color-warning-text: #92400e;
+
+  /*
+   * アプリの構造に使う色。パレットの段階値をアプリへ露出せず、ページ / 面 /
+   * 文字 / 操作という役割で参照させる。light が既定で、dark は下の theme
+   * override だけで同じ構造を保つ。
+   */
+  --nk-color-bg-page: var(--nk-color-neutral-50);
+  --nk-color-bg-surface: var(--nk-color-neutral-0);
+  --nk-color-bg-elevated: var(--nk-color-neutral-0);
+  --nk-color-text-primary: var(--nk-color-neutral-800);
+  --nk-color-text-muted: var(--nk-color-neutral-600);
+  --nk-color-border: var(--nk-color-neutral-200);
+  --nk-color-link: var(--nk-color-primary-700);
+  --nk-color-focus: var(--nk-color-primary-500);
+
+  /* ---- タイポグラフィ ---- */
+  --nk-font-sans: "Segoe UI", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --nk-font-mono: "Cascadia Code", Consolas, "BIZ UDGothic", monospace;
+  --nk-font-size-xs: 0.75rem;
+  --nk-font-size-sm: 0.875rem;
+  --nk-font-size-md: 1rem;
+  --nk-font-size-lg: 1.125rem;
+  --nk-font-size-xl: 1.375rem;
+  --nk-font-size-2xl: 1.75rem;
+
+  /* ---- 余白 (4px グリッド) ---- */
+  --nk-space-1: 0.25rem;
+  --nk-space-2: 0.5rem;
+  --nk-space-3: 0.75rem;
+  --nk-space-4: 1rem;
+  --nk-space-6: 1.5rem;
+  --nk-space-8: 2rem;
+  --nk-space-12: 3rem;
+
+  /* ---- 角丸・影 ---- */
+  --nk-radius-sm: 4px;
+  --nk-radius-md: 8px;
+  --nk-radius-lg: 12px;
+  --nk-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.08);
+  --nk-shadow-md: 0 4px 12px rgb(15 23 42 / 0.12);
+}
+
+/*
+ * 公開静的サイトも同じ data-theme 契約で利用する。Shoelace の light theme は
+ * 既存アプリの互換性のため変えず、アプリが参照する semantic token だけを反転する。
+ */
+html[data-theme="dark"] {
+  --nk-color-bg-page: var(--nk-color-neutral-900);
+  --nk-color-bg-surface: var(--nk-color-neutral-800);
+  --nk-color-bg-elevated: var(--nk-color-neutral-700);
+  --nk-color-text-primary: var(--nk-color-neutral-50);
+  --nk-color-text-muted: var(--nk-color-neutral-300);
+  --nk-color-border: var(--nk-color-neutral-700);
+  --nk-color-link: var(--nk-color-primary-300);
+  --nk-color-focus: var(--nk-color-primary-300);
+}
+
+/*
+ * Shoelace テーマ変数へのマッピング。
+ * Shoelace コンポーネントは Shadow DOM 内から --sl-* を参照するが、
+ * custom property は Shadow DOM を貫通するため :root で上書きすれば全体に効く。
+ * (全 --sl-* を網羅せず、体感に効くものだけ。既定値は light テーマのまま)
+ */
+:root {
+  --sl-color-primary-50: var(--nk-color-primary-50);
+  --sl-color-primary-100: var(--nk-color-primary-100);
+  --sl-color-primary-200: var(--nk-color-primary-200);
+  --sl-color-primary-300: var(--nk-color-primary-300);
+  --sl-color-primary-400: var(--nk-color-primary-400);
+  --sl-color-primary-500: var(--nk-color-primary-500);
+  --sl-color-primary-600: var(--nk-color-primary-600);
+  --sl-color-primary-700: var(--nk-color-primary-700);
+  --sl-color-primary-800: var(--nk-color-primary-800);
+  --sl-color-primary-900: var(--nk-color-primary-900);
+
+  --sl-font-sans: var(--nk-font-sans);
+  --sl-font-mono: var(--nk-font-mono);
+
+  --sl-border-radius-small: var(--nk-radius-sm);
+  --sl-border-radius-medium: var(--nk-radius-md);
+  --sl-border-radius-large: var(--nk-radius-lg);
+
+  --sl-input-font-family: var(--nk-font-sans);
+}

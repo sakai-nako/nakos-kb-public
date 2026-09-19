@@ -1,0 +1,4 @@
+---
+import Base from '../../layouts/Base.astro'; import { novels } from '../../shared/novels'; import { canonicalNovelPath } from '../../shared/public-paths'; const items = novels();
+---
+<Base title="小説" canonical="/novels"><section><p class="nk-eyebrow">Library</p><h1>小説</h1>{items.length ? <ul class="nk-card-grid" role="list">{items.map((novel) => <li class="nk-card"><a class="nk-card__title" href={canonicalNovelPath(novel)}>{novel.title}</a><p class="nk-card__desc">{novel.synopsis}</p></li>)}</ul> : <p>公開済みの小説はまだありません。</p>}</section></Base>

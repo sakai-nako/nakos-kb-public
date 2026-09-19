@@ -1,0 +1,29 @@
+{
+  "name": "kb",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "deno run -A node_modules/astro/bin/astro.mjs dev",
+    "build": "deno run -A node_modules/astro/bin/astro.mjs build && deno run -A scripts/build-slides.mjs",
+    "test": "deno test -A tests/about.test.mjs tests/import-projection.test.mjs tests/projection-destination.test.mjs tests/events-projection.test.mjs tests/cfp-projection.test.mjs tests/blog-projection.test.mjs tests/slides-projection.test.mjs tests/build-slides.test.mjs tests/markdown.test.mjs tests/public-paths.test.mjs scripts/deployment-smoke.test.ts scripts/tasks.test.ts scripts/release-prep.test.ts",
+    "e2e": "deno run -A node_modules/@playwright/test/cli.js test",
+    "import-projection": "deno run -A scripts/import-projection.mjs",
+    "review-projection": "deno run -A scripts/projection-workflow.mjs review",
+    "apply-projection": "deno run -A scripts/projection-workflow.mjs apply",
+    "publication-authority": "deno run -A scripts/publication-authority.mjs"
+  },
+  "dependencies": {
+    "@personal/ui": "workspace:*",
+    "@slidev/cli": "52.11.3",
+    "@slidev/theme-seriph": "0.25.0",
+    "astro": "7.2.2",
+    "fuse.js": "7.1.0",
+    "marked": "18.0.11",
+    "vite": "7.3.6",
+    "vue": "3.5.24"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
+  }
+}

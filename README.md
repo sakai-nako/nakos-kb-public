@@ -1,28 +1,26 @@
-# Nako's Knowledge Base
+# nakos-kb-public
 
 > [!NOTE]
-> このリポジトリは、私的に運用しているプライベートリポジトリの**フィルタ済み公開ミラー**です (生成元コミット: `4465f02`)。
-> 個人ディレクトリ (`content-private/`, `content-external/`, `docs/`) を除外したスナップショットを、
-> [scripts/publish-public-mirror.ps1](scripts/publish-public-mirror.ps1) で随時 push しています。
+> このリポジトリは personal-monorepo の**フィルタ済み公開ミラー**です (生成元コミット: `be38dac4`)。
+> `packages/kb` と、そのビルドに要る範囲だけを `just repo-mirror-publish kb` で随時 push しています。
 > Web サイト (Cloudflare Pages) はこのミラーへの push をトリガーに GitHub Actions でデプロイされます。
 > private 側に実コミット履歴があるため、このミラーには履歴は含まれません。
 
-## プロジェクトのAIルール設定 (`.claude/rules`)
+hack-pleasantness.com の公開ソースです。非公開の monorepo から、公開に必要な範囲 (`packages/kb` と
+デザインシステムのトークン) をフィルタしたスナップショットを、人が明示的に push しています。
+このリポジトリでは Issue と Pull Request を受け付けていません。
 
-このプロジェクトでは、AIエージェント（Antigravity等）が効率的にコードを理解・生成できるように、`.claude/rules` ディレクトリにルール定義ファイルを配置しています。
+## ビルド
 
-### ファイル構成と命名規則
+Deno 2.9 以上で次を実行します。
 
-ファイル名の先頭にある番号は、以下の意図で付けられています：
+```sh
+deno install
+cd packages/kb && deno task build   # Astro のサイトと Slidev のデッキを dist/ に出力
+```
 
-1.  **読み込み優先度**:
-    数字が小さいファイル（00, 10...）ほど、プロジェクトの根幹に関わる重要なルールです。エージェントはこれらを優先的に参照します。
+配信は GitHub Actions が `main` への push で `packages/kb/dist` を Cloudflare Pages に upload します。
 
-2.  **カテゴリ分け**:
-    - `00-19`: **基盤・絶対ルール** (Core, Tech Stack)
-    - `20-39`: **実装・設計詳細** (Coding Style, Architecture)
-    - `40-79`: **品質・検証** (Testing)
-    - `80-99`: **運用・その他** (Security, Docs)
-
-3.  **拡張性**:
-    10刻みにすることで、将来的に新しいカテゴリのルール（例: `15-database.md`）が必要になった際に、適切な順序で追加できるようにしています。
+`deno.lock` は含めていません。monorepo 側の lock は workspace 全体のもので、このミラーの workspace
+とは構成が違うためです。`deno install` は凍結なしで走るので、依存の版はこのリポジトリだけでは
+固定されません。ミラー専用の lock を持たせるかは未定です。

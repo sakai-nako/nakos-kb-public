@@ -1,0 +1,99 @@
+@import "@personal/ui/tokens.css";
+@import "@personal/ui/patterns.css";
+
+/* サイトの骨格 (ヘッダー・カード・読み物パネル) は patterns.css が持つ。ここに残すのは
+   kb 固有のもの — ページの地色、小説と About の本文組み、章立て、見出しアンカー。 */
+
+:root {
+  color: var(--nk-color-text-primary);
+  background: var(--nk-color-bg-page);
+  font-family: var(--nk-font-sans);
+  line-height: 1.65;
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--nk-color-bg-page);
+}
+
+a {
+  color: var(--nk-color-link);
+  overflow-wrap: anywhere;
+  text-underline-offset: 0.18em;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--nk-color-focus);
+  outline-offset: 3px;
+}
+
+h1 {
+  margin-block: 0 var(--nk-space-4);
+  line-height: 1.2;
+}
+
+.meta {
+  color: var(--nk-color-text-muted);
+}
+
+/* 章は順番が意味を持つので番号付きのまま。カード grid には寄せない。 */
+.chapter-list {
+  display: grid;
+  gap: var(--nk-space-3);
+  margin: var(--nk-space-6) 0 0;
+  padding-left: var(--nk-space-6);
+}
+
+.chapter-list li {
+  padding: var(--nk-space-3) var(--nk-space-4);
+  border: 1px solid var(--nk-color-border);
+  border-radius: var(--nk-radius-md);
+  background: var(--nk-color-bg-elevated);
+  overflow-wrap: anywhere;
+}
+
+.chapter-list li > a {
+  font-weight: 700;
+}
+
+.novel-body {
+  font-size: clamp(1rem, 1rem + 0.2vw, 1.125rem);
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+
+.about-body {
+  font-size: clamp(1rem, 1rem + 0.15vw, 1.1rem);
+  line-height: 1.9;
+}
+
+.novel-body ruby {
+  ruby-position: over;
+}
+.novel-body rt {
+  font-size: 0.55em;
+}
+.dots {
+  text-emphasis: filled dot;
+  -webkit-text-emphasis: filled dot;
+}
+.scene-break {
+  border: 0;
+  border-top: 1px solid var(--nk-color-border);
+  margin: var(--nk-space-8) 0;
+}
+
+.chapter-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nk-space-4);
+  margin-top: var(--nk-space-8);
+  padding-top: var(--nk-space-4);
+  border-top: 1px solid var(--nk-color-border);
+}

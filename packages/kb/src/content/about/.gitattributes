@@ -1,0 +1,2 @@
+# Approved public Markdown preserves trailing double-spaces as source-authentic hard breaks.
+*.md -whitespace

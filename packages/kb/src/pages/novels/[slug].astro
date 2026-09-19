@@ -1,0 +1,4 @@
+---
+import Base from '../../layouts/Base.astro'; import { novels, novel } from '../../shared/novels'; import { canonicalChapterPath, canonicalNovelPath, resolveNovelSlug } from '../../shared/public-paths'; const items = novels(); export function getStaticPaths() { return novels().map((item) => ({ params: { slug: canonicalNovelPath(item).split('/').at(-1) } })); } const resolved = resolveNovelSlug(Astro.params.slug ?? '', items); const item = resolved ? novel(resolved) : null; if (!item) return Astro.redirect('/404');
+---
+<Base title={item.title} canonical={canonicalNovelPath(item)}><section class="nk-reading"><a class="nk-back-link" href="/novels">小説一覧へ戻る</a><p class="nk-eyebrow">Novel</p><h1>{item.title}</h1><p class="meta">{item.synopsis}</p><ol class="chapter-list">{item.chapters.map((chapter) => <li><a href={canonicalChapterPath(item, chapter.slug)}>{chapter.title}</a> <span class="meta">{chapter.sequence}章</span></li>)}</ol></section></Base>

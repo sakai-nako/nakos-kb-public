@@ -1,0 +1,36 @@
+{
+  "name": "@personal/ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens.css": "./src/tokens/tokens.css",
+    "./patterns.css": "./src/styles/patterns.css"
+  },
+  "scripts": {
+    "dev": "deno run -A npm:vite@8.2.1",
+    "build": "deno run -A npm:typescript@6.0.3/tsc && deno run -A npm:vite@8.2.1 build",
+    "preview": "deno run -A npm:vite@8.2.1 preview",
+    "storybook": "deno run -A scripts/tasks.ts dev",
+    "build-storybook": "deno run -A scripts/tasks.ts storybook-build",
+    "test": "deno run -A scripts/tasks.ts test"
+  },
+  "dependencies": {
+    "@shoelace-style/shoelace": "^2.20.1",
+    "lit": "^3.3.3"
+  },
+  "devDependencies": {
+    "@storybook/addon-a11y": "^10.5.7",
+    "@storybook/addon-docs": "^10.5.7",
+    "@storybook/addon-vitest": "^10.5.7",
+    "@storybook/web-components-vite": "^10.5.7",
+    "@vitest/browser-playwright": "4.1.10",
+    "@vitest/coverage-v8": "4.1.10",
+    "playwright": "1.62.1",
+    "storybook": "^10.5.7",
+    "typescript": "~6.0.2",
+    "vite": "8.2.1",
+    "vitest": "4.1.10"
+  }
+}

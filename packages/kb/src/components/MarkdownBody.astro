@@ -1,0 +1,7 @@
+---
+// 入力は投影された Markdown だけ。描画は renderMarkdown のサニタイズを通した HTML に限る。
+import { renderMarkdown } from '../shared/markdown';
+const { source } = Astro.props;
+const html = renderMarkdown(source);
+---
+<div class="nk-prose" set:html={html} />

@@ -1,0 +1,17 @@
+{
+  "sourceCommit": "6d2a21b865fc126093dd0fee10293ea87c1b5423",
+  "files": [
+    {
+      "file": "profile.md",
+      "sha256": "3683ef05bb03aea09adf676b891f5e9e2ff953412a7bc11c7b1469a705f3778f"
+    },
+    {
+      "file": "self-portrait-2026-04-13.md",
+      "sha256": "63053e7310a416fc1b0e68c99377252294052ac264116bc11f4fd8b73e4b5332"
+    },
+    {
+      "file": "self-portrait-2026-05-04.md",
+      "sha256": "c06eb3fb9ed9839d221985f769e9c9b6ec1af7f0d0300eb8d7a07d9bfeac38da"
+    }
+  ]
+}

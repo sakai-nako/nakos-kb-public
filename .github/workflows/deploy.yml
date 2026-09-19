@@ -1,57 +1,22 @@
 name: Deploy to Cloudflare Pages
-
-# このファイルは private リポジトリ (origin = ローカル GitLab) で管理され、
-# 公開ミラー (github.com/sakai-nako/nakos-kb-public) に配布されて実行される。
-# サイトのデプロイは「ミラー公開 (/publish-public-mirror)」をトリガーとする設計:
-# フィルタ済みスナップショットだけがサイトになるため、ミラーの禁止パターン検査が
-# サイト公開の安全網としても機能する。
-
 on:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - ".claude/**"
-      - ".vscode/**"
-      - "README.md"
-      - ".gitignore"
-      - ".prettierignore"
-      - ".prettierrc"
-      - ".npmrc"
-      - "eslint.config.js"
-
+    branches: [main]
 jobs:
   deploy:
-    # 公開ミラーでのみ実行する。バックアップ用の private GitHub リポジトリ
-    # (sakai-nako/nakos-kb) に push された場合の誤発火を防ぐガード
     if: github.repository == 'sakai-nako/nakos-kb-public'
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: denoland/setup-deno@v2
         with:
-          node-version: "24"
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build Astro
-        run: pnpm build
-
-      - name: Build slides
-        run: pnpm build:slides
-
-      # wrangler は devDependency (lockfile 固定)。デプロイ時に最新版を都度取得しない
-      - name: Deploy to Cloudflare Pages
-        run: pnpm exec wrangler pages deploy dist --project-name=nakos-kb --commit-dirty=true
+          deno-version: v2.9.x
+      - run: deno install
+      - run: deno task build
+        working-directory: packages/kb
+      - run: npx --yes wrangler@4 pages deploy packages/kb/dist --project-name=nakos-kb --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

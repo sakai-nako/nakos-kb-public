@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import { decks, formatEventDate } from '../../shared/slides';
+import { slidesPath } from '../../shared/public-paths';
+const items = decks();
+---
+<Base title="Slides" canonical="/slides">
+  <section>
+    <p class="nk-eyebrow">Slides</p>
+    <h1>登壇スライド</h1>
+    {items.length ? (
+      <ul class="nk-card-grid" role="list">
+        {items.map((item) => (
+          <li class="nk-card">
+            {item.eventDate && <p class="nk-card__meta">{formatEventDate(item.eventDate)}</p>}
+            <a class="nk-card__title" href={slidesPath(item.id)} target="_blank" rel="noopener noreferrer">{item.title}</a>
+            {item.eventName && <p class="nk-card__desc">{item.eventName}</p>}
+          </li>
+        ))}
+      </ul>
+    ) : <p>公開済みのスライドはまだありません。</p>}
+  </section>
+</Base>

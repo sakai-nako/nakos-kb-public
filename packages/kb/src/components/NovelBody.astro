@@ -1,0 +1,5 @@
+---
+import { segments } from '../shared/inline';
+const { body } = Astro.props;
+---
+<div class="novel-body">{body.split(/\n{2,}/).map((paragraph: string) => paragraph.trim() === '---' ? <hr class="scene-break" /> : <p>{paragraph.split('\n').map((line) => <>{segments(line).map((part) => part.kind === 'ruby' ? <ruby>{part.value}<rt>{part.annotation}</rt></ruby> : part.kind === 'dots' ? <span class="dots">{part.value}</span> : part.kind === 'link' ? <a href={part.value} target="_blank" rel="noopener noreferrer">{part.value}</a> : part.value)}<br /></>)}</p>)}</div>

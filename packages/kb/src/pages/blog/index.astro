@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import { formatPubDate, posts } from '../../shared/blog';
+import { blogPath } from '../../shared/public-paths';
+const items = posts();
+---
+<Base title="Blog" canonical="/blog">
+  <section>
+    <p class="nk-eyebrow">Blog</p>
+    <h1>ブログ記事</h1>
+    {items.length ? (
+      <ul class="nk-card-grid" role="list">
+        {items.map((item) => (
+          <li class="nk-card">
+            <p class="nk-card__meta">{formatPubDate(item.pubDate)}</p>
+            <a class="nk-card__title" href={blogPath(item.id)}>{item.title}</a>
+            <p class="nk-card__desc">{item.description}</p>
+            {item.tags.length > 0 && <ul class="nk-chip-list" role="list">{item.tags.map((tag) => <li class="nk-chip">{tag}</li>)}</ul>}
+          </li>
+        ))}
+      </ul>
+    ) : <p>公開済みの記事はまだありません。</p>}
+  </section>
+</Base>

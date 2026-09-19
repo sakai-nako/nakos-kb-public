@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import { aboutEntries } from '../../shared/about';
+const entries = aboutEntries();
+---
+<Base title="About" canonical="/about">
+  <section>
+    <p class="nk-eyebrow">About</p>
+    <h1>プロフィールと公開セルフポートレート</h1>
+    {entries.length ? <ul class="nk-card-grid" role="list">{entries.map((entry) => <li class="nk-card"><a class="nk-card__title" href={`/about/${entry.slug}`}>{entry.title}</a><p class="nk-card__desc">{entry.summary}</p></li>)}</ul> : <p>公開済みのプロフィールはまだありません。</p>}
+  </section>
+</Base>

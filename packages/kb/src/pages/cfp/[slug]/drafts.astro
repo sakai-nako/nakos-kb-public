@@ -1,0 +1,21 @@
+---
+import MarkdownBody from '../../../components/MarkdownBody.astro';
+import Base from '../../../layouts/Base.astro';
+import { cfp, cfps } from '../../../shared/cfp';
+import { cfpDraftsPath, cfpPath } from '../../../shared/public-paths';
+export function getStaticPaths() {
+  return cfps()
+    .filter((item) => item.drafts)
+    .map((item) => ({ params: { slug: item.id } }));
+}
+const item = cfp(Astro.params.slug ?? '');
+if (!item?.drafts) return Astro.redirect('/404');
+---
+<Base title={item.drafts.title} canonical={cfpDraftsPath(item.id)}>
+  <article class="nk-reading">
+    <a class="nk-back-link" href={cfpPath(item.id)}>CfP 本文に戻る</a>
+    <p class="nk-eyebrow">校正過程</p>
+    <h1>{item.drafts.title}</h1>
+    <MarkdownBody source={item.drafts.body} />
+  </article>
+</Base>

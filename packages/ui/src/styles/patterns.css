@@ -1,0 +1,240 @@
+/*
+ * 静的サイト向けの骨格 (CSS だけの層)。Lit 部品を置けないページ (SSR しない Astro など) が、
+ * プレーン HTML にクラスを付けて DS と同じ見た目を得るためのもの。
+ *
+ * 規律:
+ * - 値は tokens.css の --nk-* だけを参照する。色・余白・角丸の実値をここに書かない。
+ * - ダークは tokens.css の html[data-theme="dark"] が役割トークンを反転させる。
+ *   この層はテーマを見分けない (メディアクエリで色を切り替える記述を置かない)。
+ * - セレクタは nk- のクラスに閉じる。素の要素セレクタを置くと、この CSS を読んだページ
+ *   全体の見た目を DS が黙って書き換えることになる。
+ * - 面を塗る器は前景色も一緒に持つ。背景だけ塗ると、置く側の body の文字色しだいで
+ *   コントラストが崩れる (DS 側で塞げる穴なので DS が塞ぐ)。
+ * - JS が要るもの (テーマ切替の状態管理など) はこの層に入れない。aria-pressed /
+ *   aria-current の値を更新するのは置く側の script で、この層はその値を見て姿を変える。
+ */
+
+.nk-page {
+  width: min(100% - 2rem, 72rem);
+  margin-inline: auto;
+  padding-block: clamp(var(--nk-space-6), 8vw, var(--nk-space-12));
+}
+
+/* ---- header ---- */
+.nk-site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--nk-color-border);
+  background: var(--nk-color-bg-elevated);
+  color: var(--nk-color-text-primary);
+}
+
+.nk-site-header__inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--nk-space-4);
+  width: min(100% - 2rem, 72rem);
+  min-height: 4rem;
+  margin-inline: auto;
+}
+
+.nk-site-brand {
+  color: var(--nk-color-text-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.nk-site-nav {
+  display: flex;
+  gap: var(--nk-space-4);
+  justify-self: center;
+}
+
+.nk-site-nav a {
+  padding: var(--nk-space-1) var(--nk-space-2);
+  border-radius: var(--nk-radius-sm);
+  color: var(--nk-color-text-muted);
+  text-decoration: none;
+}
+
+.nk-site-nav a:hover {
+  color: var(--nk-color-text-primary);
+}
+
+.nk-site-nav a[aria-current="page"] {
+  color: var(--nk-color-link);
+  font-weight: 700;
+}
+
+.nk-theme-menu {
+  display: flex;
+  gap: var(--nk-space-1);
+  justify-self: end;
+}
+
+.nk-theme-menu button {
+  border: 1px solid var(--nk-color-border);
+  border-radius: var(--nk-radius-sm);
+  padding: var(--nk-space-1) var(--nk-space-2);
+  color: var(--nk-color-text-primary);
+  background: var(--nk-color-bg-surface);
+  font: inherit;
+  font-size: var(--nk-font-size-sm);
+}
+
+.nk-theme-menu button[aria-pressed="true"] {
+  background: var(--nk-color-bg-page);
+  font-weight: 700;
+}
+
+/* 3 カラムが並ばない幅では 1 カラムに畳み、ナビとテーマメニューを行幅いっぱいに使う。 */
+@media (max-width: 40rem) {
+  .nk-site-header__inner {
+    grid-template-columns: 1fr;
+    gap: var(--nk-space-2);
+    padding-block: var(--nk-space-2);
+  }
+
+  .nk-site-nav,
+  .nk-theme-menu {
+    justify-self: stretch;
+  }
+
+  .nk-theme-menu button {
+    flex: 1;
+  }
+}
+
+/* ---- cards ---- */
+.nk-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--nk-space-4);
+  margin: var(--nk-space-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nk-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--nk-space-2);
+  padding: var(--nk-space-4);
+  border: 1px solid var(--nk-color-border);
+  border-radius: var(--nk-radius-md);
+  background: var(--nk-color-bg-surface);
+  color: var(--nk-color-text-primary);
+  box-shadow: var(--nk-shadow-sm);
+  overflow-wrap: anywhere;
+}
+
+/* カードの見出しはカードへ入る取っ手なので、リンクの色を DS 側で決める。 */
+.nk-card__title {
+  color: var(--nk-color-link);
+  font-weight: 700;
+}
+
+.nk-card__meta {
+  margin: 0;
+  color: var(--nk-color-text-muted);
+  font-size: var(--nk-font-size-sm);
+}
+
+.nk-card__desc {
+  margin: 0;
+}
+
+/* ---- chips ---- */
+.nk-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--nk-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nk-chip {
+  display: inline-block;
+  padding: 0 var(--nk-space-2);
+  border: 1px solid var(--nk-color-border);
+  border-radius: var(--nk-radius-lg);
+  color: var(--nk-color-text-muted);
+  background: var(--nk-color-bg-elevated);
+  font-size: var(--nk-font-size-sm);
+  line-height: 1.6;
+}
+
+/* ---- reading ---- */
+.nk-reading {
+  max-width: 48rem;
+  margin-inline: auto;
+  padding: clamp(var(--nk-space-4), 5vw, var(--nk-space-8));
+  border: 1px solid var(--nk-color-border);
+  border-radius: var(--nk-radius-lg);
+  background: var(--nk-color-bg-surface);
+  color: var(--nk-color-text-primary);
+  box-shadow: var(--nk-shadow-sm);
+}
+
+.nk-eyebrow {
+  margin: 0 0 var(--nk-space-2);
+  color: var(--nk-color-text-muted);
+  font-size: var(--nk-font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nk-back-link {
+  display: inline-block;
+  margin-bottom: var(--nk-space-6);
+  color: var(--nk-color-link);
+}
+
+.nk-prose {
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+
+.nk-prose h2,
+.nk-prose h3 {
+  margin-top: var(--nk-space-8);
+  line-height: 1.3;
+}
+
+/* 見出しの中に埋まるリンクなので、下線を外さない。色だけを弱めた「#」は周囲の
+   見出し文字と 3:1 の差が付かず、リンクだと分かる手掛かりが消える
+   (axe の link-in-text-block)。 */
+.nk-prose .heading-anchor {
+  margin-left: var(--nk-space-2);
+  color: var(--nk-color-text-muted);
+}
+
+/* elevated と surface は light では同じ白なので、枠が無いと本文と地続きに見える。 */
+.nk-prose pre {
+  padding: var(--nk-space-3);
+  border: 1px solid var(--nk-color-border);
+  border-radius: var(--nk-radius-md);
+  background: var(--nk-color-bg-elevated);
+  overflow-x: auto;
+}
+
+.nk-prose code {
+  font-family: var(--nk-font-mono);
+  font-size: 0.95em;
+}
+
+/* ---- focus ---- */
+/* この層が姿を決めた取っ手には、この層が focus ring も配る。置く側の素の
+   `a:focus-visible` に頼ると、その 1 行を持たないページで ring が消える。 */
+.nk-site-header a:focus-visible,
+.nk-site-header button:focus-visible,
+.nk-card__title:focus-visible,
+.nk-back-link:focus-visible,
+.nk-prose .heading-anchor:focus-visible {
+  outline: 3px solid var(--nk-color-focus);
+  outline-offset: 3px;
+}

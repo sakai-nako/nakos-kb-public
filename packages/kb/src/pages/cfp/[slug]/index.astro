@@ -1,0 +1,34 @@
+---
+import MarkdownBody from '../../../components/MarkdownBody.astro';
+import Base from '../../../layouts/Base.astro';
+import { cfp, cfps } from '../../../shared/cfp';
+import { event as findEvent } from '../../../shared/events';
+import { cfpDraftsPath, cfpPath, eventPath } from '../../../shared/public-paths';
+export function getStaticPaths() {
+  return cfps().map((item) => ({ params: { slug: item.id } }));
+}
+const item = cfp(Astro.params.slug ?? '');
+if (!item) return Astro.redirect('/404');
+const linkedEvent = item.event ? findEvent(item.event) : null;
+const statusLabels: Record<string, string> = { submitted: '応募済み', accepted: '採択', rejected: '不採択', withdrawn: '取り下げ' };
+---
+<Base title={item.title} canonical={cfpPath(item.id)}>
+  <article class="nk-reading">
+    <a class="nk-back-link" href="/events">イベント一覧に戻る</a>
+    <p class="nk-eyebrow">CfP</p>
+    <ul class="nk-chip-list" role="list">
+      <li class="nk-chip">{item.status ? statusLabels[item.status] : '応募予定'}</li>
+      {linkedEvent && <li class="nk-chip"><a href={eventPath(linkedEvent.id)}>{linkedEvent.event_name}</a></li>}
+      {item.tags.map((tag) => <li class="nk-chip">{tag}</li>)}
+    </ul>
+    <h1>{item.title}</h1>
+    <p class="nk-card__meta">応募日: {item.submitted_at}</p>
+    {item.target_audience && <p class="nk-card__desc">想定する聴き手: {item.target_audience}</p>}
+    {item.hook && <p class="nk-card__desc">持ち帰れるもの: {item.hook}</p>}
+    <ul class="nk-chip-list" role="list">
+      {item.url && <li><a href={item.url} target="_blank" rel="noopener noreferrer">CfPページを開く</a></li>}
+      {item.drafts && <li><a href={cfpDraftsPath(item.id)}>校正過程を見る</a></li>}
+    </ul>
+    <MarkdownBody source={item.body} />
+  </article>
+</Base>

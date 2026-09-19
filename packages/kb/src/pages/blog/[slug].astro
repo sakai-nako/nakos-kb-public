@@ -1,0 +1,20 @@
+---
+import MarkdownBody from '../../components/MarkdownBody.astro';
+import Base from '../../layouts/Base.astro';
+import { formatPubDate, post, posts } from '../../shared/blog';
+import { blogPath } from '../../shared/public-paths';
+export function getStaticPaths() {
+  return posts().map((item) => ({ params: { slug: item.id } }));
+}
+const item = post(Astro.params.slug ?? '');
+if (!item) return Astro.redirect('/404');
+---
+<Base title={item.title} canonical={blogPath(item.id)}>
+  <article class="nk-reading">
+    <a class="nk-back-link" href="/blog">Blog 一覧</a>
+    <p class="nk-eyebrow">{formatPubDate(item.pubDate)}</p>
+    <h1>{item.title}</h1>
+    {item.tags.length > 0 && <ul class="nk-chip-list" role="list">{item.tags.map((tag) => <li class="nk-chip">{tag}</li>)}</ul>}
+    <MarkdownBody source={item.body} />
+  </article>
+</Base>

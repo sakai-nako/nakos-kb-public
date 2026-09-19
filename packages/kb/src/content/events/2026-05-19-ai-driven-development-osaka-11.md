@@ -1,0 +1,3 @@
+---
+{"end_datetime":"2026-05-19T12:30:00Z","event_link":"https://aid.connpass.com/event/393322/","event_name":"AI駆動開発【大阪支部 #11】","how_relate":["attendee"],"materials":[],"start_datetime":"2026-05-19T10:30:00Z"}
+---

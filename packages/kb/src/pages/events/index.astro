@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import { events, formatJst } from '../../shared/events';
+import { eventPath } from '../../shared/public-paths';
+const items = events();
+---
+<Base title="Events" canonical="/events">
+  <section>
+    <p class="nk-eyebrow">Events</p>
+    <h1>イベント・カンファレンス参加履歴</h1>
+    {items.length ? (
+      <ul class="nk-card-grid" role="list">
+        {items.map((item) => (
+          <li class="nk-card">
+            <p class="nk-card__meta">{formatJst(item.start_datetime, 'date')} {formatJst(item.start_datetime, 'time')} - {formatJst(item.end_datetime, 'time')}</p>
+            <a class="nk-card__title" href={eventPath(item.id)}>{item.event_name}</a>
+            {item.how_relate.length > 0 && <ul class="nk-chip-list" role="list">{item.how_relate.map((tag) => <li class="nk-chip">{tag}</li>)}</ul>}
+            {item.materials.length > 0 && <p class="nk-card__desc">発表資料: {item.materials.map((material) => material.title).join(' / ')}</p>}
+          </li>
+        ))}
+      </ul>
+    ) : <p>公開済みのイベントはまだありません。</p>}
+  </section>
+</Base>
