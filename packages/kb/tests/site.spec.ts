@@ -273,3 +273,31 @@ test('serves a real 404 page with the site header', async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByRole('link', { name: "Nako's Knowledge Base ホーム" })).toBeVisible();
 });
+
+// 見出しは自分の節へのリンクを兼ねる。飛んだ先が sticky ヘッダーの下に潜ると、
+// 読み手はその見出しを見失う。広い画面と狭い画面の両方で、見出しがヘッダーより
+// 下に出ることを確かめる。
+for (const [label, width, height] of [
+  ['wide', 1280, 720],
+  ['narrow', 375, 720],
+] as const) {
+  test(`keeps a heading below the sticky header after following its own link (${label})`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height });
+    await page.goto('/about/profile');
+    const link = page.getByRole('link', { name: '関心', exact: true });
+    await link.click();
+    await expect(page).toHaveURL(new RegExp(`#${encodeURIComponent('関心')}$`));
+    const header = page.locator('.nk-site-header');
+    const heading = page.locator('h2#関心');
+    const headerBox = await header.boundingBox();
+    const headingBox = await heading.boundingBox();
+    expect(headerBox).not.toBeNull();
+    expect(headingBox).not.toBeNull();
+    const below = headingBox!.y - (headerBox!.y + headerBox!.height);
+    expect(below).toBeGreaterThanOrEqual(0);
+    // 空けすぎると飛んだ先が画面の中ほどに出る。ヘッダー直下から 1 行ぶんまでに収める。
+    expect(below).toBeLessThan(48);
+  });
+}

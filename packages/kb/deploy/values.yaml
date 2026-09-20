@@ -1,6 +1,6 @@
 image:
   repository: localhost:5050/sakai-nako/personal-monorepo/kb
-  tag: "f437518"
+  tag: "64e3432"
 imagePullSecrets:
   - name: gitlab-registry
 service:
