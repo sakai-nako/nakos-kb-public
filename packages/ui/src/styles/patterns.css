@@ -205,12 +205,16 @@
   line-height: 1.3;
 }
 
-/* 見出しの中に埋まるリンクなので、下線を外さない。色だけを弱めた「#」は周囲の
-   見出し文字と 3:1 の差が付かず、リンクだと分かる手掛かりが消える
-   (axe の link-in-text-block)。 */
-.nk-prose .heading-anchor {
-  margin-left: var(--nk-space-2);
-  color: var(--nk-color-text-muted);
+/* 見出しの文字そのものが、その節へのリンクになる。見出しの色をそのまま継ぎ、
+   ホバーとキーボードのフォーカスで下線を出す。リンクが見出しブロック全体を占めるので、
+   周囲の文字との色差を求める link-in-text-block には当たらない。 */
+.nk-prose .heading-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nk-prose .heading-link:hover {
+  text-decoration: underline;
 }
 
 /* elevated と surface は light では同じ白なので、枠が無いと本文と地続きに見える。 */
@@ -234,7 +238,7 @@
 .nk-site-header button:focus-visible,
 .nk-card__title:focus-visible,
 .nk-back-link:focus-visible,
-.nk-prose .heading-anchor:focus-visible {
+.nk-prose .heading-link:focus-visible {
   outline: 3px solid var(--nk-color-focus);
   outline-offset: 3px;
 }

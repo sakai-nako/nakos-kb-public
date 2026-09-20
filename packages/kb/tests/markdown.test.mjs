@@ -33,18 +33,28 @@ test('links: http(s) only, external get noopener; others become text', () => {
   assert.ok(html.includes('<a href="/local">c</a>'));
 });
 
-test('headings get ids and anchors; images become alt text', () => {
+test('headings become links to their own section; images become alt text', () => {
   const html = renderMarkdown(
     '## トーク概要（1000文字以内）\n\n![図](https://example.com/i.png)\n',
   );
   assert.ok(html.includes('<h2 id="トーク概要1000文字以内">'));
   assert.ok(
     html.includes(
-      '<a class="heading-anchor" href="#トーク概要1000文字以内" aria-label="この見出しへのリンク">#</a>',
+      '<a class="heading-link" href="#トーク概要1000文字以内">トーク概要（1000文字以内）</a>',
     ),
   );
+  assert.ok(!html.includes('#</a>'));
   assert.ok(!html.includes('<img'));
   assert.ok(html.includes('図'));
+});
+
+test('a heading that already contains a link is not wrapped again', () => {
+  const html = renderMarkdown('## [公式サイト](https://example.com/) の案内\n');
+  assert.ok(html.includes('<h2 id="公式サイト-の案内">'));
+  assert.ok(!html.includes('heading-link'));
+  assert.ok(
+    html.includes('<a href="https://example.com/" target="_blank" rel="noopener noreferrer">'),
+  );
 });
 
 test('renders lists, blockquotes, and code fences', () => {

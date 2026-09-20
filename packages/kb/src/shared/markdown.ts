@@ -52,7 +52,12 @@ const marked = new Marked({
       const { tokens, depth } = token;
       const text = this.parser.parseInline(tokens);
       const id = uniqueId(tokens.map((item) => ('text' in item ? String(item.text) : '')).join(''));
-      return `<h${depth} id="${escapeHtml(id)}">${text}<a class="heading-anchor" href="#${escapeHtml(id)}" aria-label="この見出しへのリンク">#</a></h${depth}>\n`;
+      // 見出しの文字そのものを、その節へのリンクにする。記号を足さずに節の URL を取れる。
+      // 本文にリンクを含む見出しは入れ子の a になるので、そのときだけリンクにしない。
+      const body = tokens.some((item) => item.type === 'link')
+        ? text
+        : `<a class="heading-link" href="#${escapeHtml(id)}">${text}</a>`;
+      return `<h${depth} id="${escapeHtml(id)}">${body}</h${depth}>\n`;
     },
     link(this: { parser: { parseInline(tokens: Tokens.Generic[]): string } }, token: Tokens.Link) {
       const text = this.parser.parseInline(token.tokens);
