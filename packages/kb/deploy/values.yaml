@@ -1,0 +1,9 @@
+image:
+  repository: localhost:5050/sakai-nako/personal-monorepo/kb
+  tag: "e53f0b2"
+imagePullSecrets:
+  - name: gitlab-registry
+service:
+  targetPort: 8080
+probes:
+  path: /health

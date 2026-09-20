@@ -1,4 +1,9 @@
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { deploymentLayout } from '../../../../../scripts/runtime/deployment-layout.ts';
+
+const repoRoot = fileURLToPath(new URL('../../../../../', import.meta.url));
+
 import { type PrepareOptions, prepareRelease } from '../../../../../scripts/runtime/release.ts';
 export function releasePrepOptions(): PrepareOptions {
   return {
@@ -6,9 +11,7 @@ export function releasePrepOptions(): PrepareOptions {
     scriptDir: fileURLToPath(new URL('../', import.meta.url)),
     paths: ['.', '../ui', '../../../../deno.lock', '../../../../deno.json'],
     registryPath: 'sakai-nako/personal-monorepo/kb',
-    valuesPath: fileURLToPath(
-      new URL('../../../../../infra/k8s/apps/kb/values.yaml', import.meta.url),
-    ),
+    valuesPath: join(repoRoot, deploymentLayout('kb').valuesFiles[0]),
   };
 }
 export async function main() {

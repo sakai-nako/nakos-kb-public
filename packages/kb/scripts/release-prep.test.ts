@@ -6,5 +6,8 @@ Deno.test('KB release follows personal UI and root locks while retaining runtime
   assert.equal(options.component, 'kb');
   assert.equal(options.registryPath, 'sakai-nako/personal-monorepo/kb');
   assert.deepEqual(options.paths, ['.', '../ui', '../../../../deno.lock', '../../../../deno.json']);
-  assert.match(options.valuesPath.replaceAll('\\', '/'), /\/infra\/k8s\/apps\/kb\/values\.yaml$/);
+  assert.match(
+    options.valuesPath.replaceAll('\\', '/'),
+    /\/brands\/personal\/packages\/kb\/deploy\/values\.yaml$/,
+  );
 });

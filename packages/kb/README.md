@@ -113,7 +113,7 @@ Astro 7.2.2 は 2026-08-18 に `pnpm view astro@7 version` で確認した現行
 
 ## 検証と配備
 
-入口は `just personal kb test` / `build` / `e2e` / `ship`。旧 `just kb` は同じ justfile を参照する。
+入口は `just personal kb test` / `build` / `e2e` / `ship`。
 検証用 build は `scripts/ci.ts kb-build` が全 6 種別の入力を `tests/fixtures/` に固定する。
 ローカルで `just personal kb build` を検証に使う場合も、全 `KB_*_CONTENT_ROOT` と小説用の
 `KB_CONTENT_ROOT` を対応する fixture へ指定する。公開イメージは CI で既存の公開用データから作る。
