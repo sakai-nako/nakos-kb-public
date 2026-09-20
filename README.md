@@ -1,7 +1,7 @@
 # nakos-kb-public
 
 > [!NOTE]
-> このリポジトリは personal-monorepo の**フィルタ済み公開ミラー**です (生成元コミット: `0e4b73ad`)。
+> このリポジトリは personal-monorepo の**フィルタ済み公開ミラー**です (生成元コミット: `0b6cd867`)。
 > `packages/kb` と、そのビルドに要る範囲だけを `just repo-mirror-publish kb` で随時 push しています。
 > Web サイト (Cloudflare Pages) はこのミラーへの push をトリガーに GitHub Actions でデプロイされます。
 > private 側に実コミット履歴があるため、このミラーには履歴は含まれません。
