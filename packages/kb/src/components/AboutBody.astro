@@ -1,16 +1,7 @@
 ---
-import { aboutSegments } from '../shared/about-inline';
+// 入力は About の本文 Markdown だけ。描画は renderMarkdown のサニタイズを通した HTML に限る。
+import { renderMarkdown } from '../shared/markdown';
 const { body } = Astro.props;
+const html = renderMarkdown(body);
 ---
-<div class="about-body">
-  {body.split(/\n{2,}/).map((block: string) => {
-    const heading = /^(#{1,6})[ \t]+(.+)$/.exec(block.trim());
-    if (heading) {
-      // 旧サイトと同じ階層: 本文の `#` と `##` は h2、それより深い見出しは h3 (ページの h1 はタイトル)。
-      const level = heading[1].length;
-      const content = aboutSegments(heading[2]);
-      return level <= 2 ? <h2>{content.map((part) => part.kind === 'link' ? <a href={part.value} target="_blank" rel="noopener noreferrer">{part.label}</a> : part.value)}</h2> : <h3>{content.map((part) => part.kind === 'link' ? <a href={part.value} target="_blank" rel="noopener noreferrer">{part.label}</a> : part.value)}</h3>;
-    }
-    return <p>{block.split('\n').map((line) => <>{aboutSegments(line).map((part) => part.kind === 'link' ? <a href={part.value} target="_blank" rel="noopener noreferrer">{part.label}</a> : part.value)}<br /></>)}</p>;
-  })}
-</div>
+<div class="about-body" set:html={html} />
