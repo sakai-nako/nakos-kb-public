@@ -107,14 +107,15 @@ review receipt には台帳全体の revision も記録する。review 後に台
 小説の章 URL は旧サイトの `/novels/cadenza-engineering/01-not-on-the-symbols` の形を保つ。
 投影の bundle slug (`cadenza-engineering-01-not-on-the-symbols`) を manifest で 3 章分 alias する。
 
-旧公開サイトの `/` から `/about` への導線と About 3 件はこの snapshot で復元した。Events 29 件、CFP 5 件、Blog 1 件、Slides 2 件は 2026-09 に旧サイトと同じ ID で移した。残るのは配信経路の切替 (GitHub ミラー経由の Cloudflare Pages) で、このローカル deployment は旧サイトの偽ページや redirect を作らない。
+旧公開サイトの `/` から `/about` への導線と About 3 件はこの snapshot で復元した。Events 29 件、CFP 5 件、Blog 1 件、Slides 2 件は 2026-09 に旧サイトと同じ ID で移した。配信経路は 2026-09-20 に GitHub ミラー経由の Cloudflare Pages へ切り替えた ([実績](../../../repo/docs/mirror.md))。旧サイトの 48 URL は切替後も全件開く。このローカル deployment は旧サイトの偽ページや redirect を作らない。
 
 Astro 7.2.2 は 2026-08-18 に `pnpm view astro@7 version` で確認した現行 patch。公式の [upgrade documentation](https://docs.astro.build/en/upgrade-astro/) と v7 guide に従う。
 
 ## 検証と配備
 
-入口は `just personal kb test` / `build` / `e2e` / `ship`。
-検証用 build は `scripts/ci.ts kb-build` が全 6 種別の入力を `tests/fixtures/` に固定する。
+入口は `just personal kb test` / `build` / `e2e` / `smoke`。
+検証用 build は `deno run -A scripts/tasks.ts build-validation` (CI の kb-build job と同じ入口) が
+全 6 種別の入力を `tests/fixtures/` に固定する。配布用の dist は `build-release` で、入力はコミット済みの公開投影だけ。
 ローカルで `just personal kb build` を検証に使う場合も、全 `KB_*_CONTENT_ROOT` と小説用の
 `KB_CONTENT_ROOT` を対応する fixture へ指定する。公開イメージは CI で既存の公開用データから作る。
 

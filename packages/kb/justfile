@@ -66,27 +66,6 @@ authority-activate slug kind:
 [positional-arguments]
 [script("deno", "run", "-A")]
 [extension(".ts")]
-release-prep:
-    import { pathToFileURL } from 'node:url';
-    const dir = String.raw`{{ source_directory() }}`;
-    const { main } = await import(pathToFileURL(dir + '/scripts/tasks.ts').href);
-    Deno.exit(await main(['release-prep', ...Deno.args]));
-
-# 出荷の後半を 1 本にする (scripts/ship.ts): CI 待ち → release-prep → apps-apply kb →
-# rollout 確認 → values を chore(infra/k8s) でコミット → push。冪等。
-# push 済みの HEAD を配備まで運ぶ (CI 待ち → 転記 → 適用 → rollout → values コミット/push)。
-[positional-arguments]
-[script("deno", "run", "-A")]
-[extension(".ts")]
-ship *args:
-    import { pathToFileURL } from 'node:url';
-    const dir = String.raw`{{ source_directory() }}`;
-    const { main } = await import(pathToFileURL(dir + '/scripts/tasks.ts').href);
-    Deno.exit(await main(['ship', ...Deno.args]));
-
-[positional-arguments]
-[script("deno", "run", "-A")]
-[extension(".ts")]
 e2e *args:
     import { pathToFileURL } from 'node:url';
     const dir = String.raw`{{ source_directory() }}`;
