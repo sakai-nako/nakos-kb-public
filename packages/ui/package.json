@@ -9,12 +9,12 @@
     "./patterns.css": "./src/styles/patterns.css"
   },
   "scripts": {
-    "dev": "deno run -A npm:vite@8.2.1",
-    "build": "deno run -A npm:typescript@6.0.3/tsc && deno run -A npm:vite@8.2.1 build",
-    "preview": "deno run -A npm:vite@8.2.1 preview",
-    "storybook": "deno run -A scripts/tasks.ts dev",
-    "build-storybook": "deno run -A scripts/tasks.ts storybook-build",
-    "test": "deno run -A scripts/tasks.ts test"
+    "dev": "vite",
+    "build": "tsc --noEmit && storybook build --disable-telemetry",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006 --host 127.0.0.1 --exact-port --ci --disable-telemetry",
+    "build-storybook": "storybook build --disable-telemetry",
+    "test": "vitest run"
   },
   "dependencies": {
     "@shoelace-style/shoelace": "^2.20.1",

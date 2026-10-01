@@ -233,7 +233,7 @@ function updateWork(authorityPath, workSlug, update) {
 }
 
 if (import.meta.main) {
-  const [command, authorityPath, workSlug, fourth, fifth] = Deno.args;
+  const [command, authorityPath, workSlug, fourth, fifth] = process.argv.slice(2);
   let result;
   if (command === 'register') result = registerWork(authorityPath, workSlug, fourth, fifth);
   else if (command === 'freeze') result = freezeWork(authorityPath, workSlug);

@@ -13,7 +13,7 @@ const content = path.join(kb, 'tests/fixtures/slides');
 test('builds each deck into the output root and merges its redirects', () => {
   const dist = fs.mkdtempSync(path.join(os.tmpdir(), 'kb-slides-build-'));
   try {
-    execFileSync(Deno.execPath(), ['run', '-A', 'scripts/build-slides.mjs'], {
+    execFileSync(process.execPath, ['scripts/build-slides.mjs'], {
       cwd: kb,
       env: {
         ...process.env,
@@ -53,7 +53,7 @@ test('puts the deck rules ahead of the rules copied from public/', () => {
   try {
     const target = path.join(dist, '_redirects');
     fs.writeFileSync(target, '/  /about  301\n/slides/*  /slides/:splat  200\n', 'utf8');
-    execFileSync(Deno.execPath(), ['run', '-A', 'scripts/build-slides.mjs'], {
+    execFileSync(process.execPath, ['scripts/build-slides.mjs'], {
       cwd: kb,
       env: {
         ...process.env,

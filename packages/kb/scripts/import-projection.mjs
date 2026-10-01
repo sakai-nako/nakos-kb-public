@@ -502,12 +502,9 @@ export function importProjection(bundle, destination, authorityPath = defaultAut
   });
 }
 if (import.meta.main) {
-  const source = Deno.args[0];
+  const argv = process.argv.slice(2);
+  const source = argv[0];
   if (!source) throw new Error('usage: import-projection <bundle.json> [destination] [authority]');
   const bundle = JSON.parse(fs.readFileSync(source, 'utf8'));
-  importProjection(
-    bundle,
-    Deno.args[1] ?? defaultDestination(bundle),
-    Deno.args[2] ?? defaultAuthorityPath,
-  );
+  importProjection(bundle, argv[1] ?? defaultDestination(bundle), argv[2] ?? defaultAuthorityPath);
 }

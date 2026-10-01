@@ -1,0 +1,9 @@
+# ミラーの workspace。monorepo 側の pnpm-workspace.yaml は 6 パッケージを指すので出さず、
+# 公開範囲 (kb と、その読む DS) だけをここで宣言する。
+packages:
+  - packages/ui
+  - packages/kb
+
+# postinstall を走らせる依存は明示する (既定では pnpm 10 が全部止める)。
+onlyBuiltDependencies:
+  - esbuild

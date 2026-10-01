@@ -1,0 +1,9 @@
+{
+  "name": "nakos-kb-public",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=25.9.0"
+  },
+  "packageManager": "pnpm@10.33.0"
+}

@@ -1,29 +1,15 @@
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import type { CommandSpec } from '../../../../../scripts/runtime/process.ts';
-import config from '../playwright.config.ts';
+import { type CommandSpec, pnpmCommand } from '../../../../../scripts/runtime/process.ts';
 import { main } from './tasks.ts';
 
 const kb = fileURLToPath(new URL('../', import.meta.url));
-Deno.test('KB E2E starts an isolated server with only synthetic content roots', () => {
-  const server = config.webServer;
-  assert.ok(server && !Array.isArray(server));
-  assert.equal(server.reuseExistingServer, false);
-  assert.equal(server.env?.ASTRO_DEV_BACKGROUND, '1');
-  for (const key of [
-    'KB_CONTENT_ROOT',
-    'KB_ABOUT_CONTENT_ROOT',
-    'KB_EVENTS_CONTENT_ROOT',
-    'KB_CFP_CONTENT_ROOT',
-    'KB_BLOG_CONTENT_ROOT',
-    'KB_SLIDES_CONTENT_ROOT',
-  ]) {
-    assert.ok(server.env![key].replaceAll('\\', '/').includes('/tests/fixtures/'));
-  }
-});
-for (const [task, expected] of [
-  ['e2e', ['task', 'e2e', '--grep', 'synthetic']],
-  ['smoke', ['run', '-A', 'scripts/deployment-smoke.ts', '--grep', 'synthetic']],
+// Playwright の設定そのものの検査は node 側 (tests/playwright-config.test.mjs) が持つ。
+// この道具は Deno で動くので、node の依存を読む設定ファイルを import しない。
+// アプリの入口は pnpm、Deno のまま残るのは道具 (deployment-smoke.ts) だけ。
+for (const [task, command, expected] of [
+  ['e2e', pnpmCommand, ['run', 'e2e', '--grep', 'synthetic']],
+  ['smoke', Deno.execPath(), ['run', '-A', 'scripts/deployment-smoke.ts', '--grep', 'synthetic']],
 ] as const) {
   Deno.test(`KB ${task} forwards arguments and the child exit code from its package root`, async () => {
     const calls: CommandSpec[] = [];
@@ -34,7 +20,10 @@ for (const [task, expected] of [
       }),
       17,
     );
-    assert.deepEqual(calls, [{ command: Deno.execPath(), args: [...expected], cwd: kb }]);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].command, command);
+    assert.deepEqual(calls[0].args, [...expected]);
+    assert.equal(calls[0].cwd, kb);
   });
 }
 
@@ -48,9 +37,12 @@ Deno.test('KB release build installs at the workspace root and never inherits fi
     }),
     0,
   );
-  assert.deepEqual(calls[0].args, ['install', '--frozen']);
+  assert.equal(calls[0].command, pnpmCommand);
+  assert.deepEqual(calls[0].args, ['install', '--frozen-lockfile']);
   assert.equal(calls[0].env, undefined);
   assert.equal(calls.length, 3);
+  assert.deepEqual(calls[1].args, ['exec', 'astro', 'build']);
+  assert.deepEqual(calls[2].args, ['scripts/build-slides.mjs']);
   for (const call of calls.slice(1)) {
     assert.equal(call.cwd, kb);
     for (const [key, directory] of [
@@ -89,10 +81,10 @@ Deno.test('KB validation build runs the tests first and uses only the six fixtur
     }),
     0,
   );
-  assert.deepEqual(calls[0].args, ['task', 'test']);
+  assert.deepEqual(calls[0].args, ['run', 'test']);
   assert.equal(calls[0].env, undefined);
-  assert.deepEqual(calls[1].args, ['run', '-A', 'npm:astro@7.2.2', 'build']);
-  assert.deepEqual(calls[2].args, ['run', '-A', 'scripts/build-slides.mjs']);
+  assert.deepEqual(calls[1].args, ['exec', 'astro', 'build']);
+  assert.deepEqual(calls[2].args, ['scripts/build-slides.mjs']);
   for (const call of calls.slice(1)) {
     assert.equal(call.cwd, kb);
     for (const [key, directory] of [

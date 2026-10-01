@@ -10,12 +10,15 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v2
+      - uses: pnpm/action-setup@v4
         with:
-          deno-version: v2.9.x
-      - run: deno install
-      - run: deno task build
-        working-directory: packages/kb
+          version: 10.33.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 25.9.0
+      # lock はミラーに含めないので凍結なしで解決する (README のビルド節)。
+      - run: pnpm install --no-frozen-lockfile
+      - run: pnpm --filter kb run build
       - run: npx --yes wrangler@4 pages deploy packages/kb/dist --project-name=nakos-kb --commit-dirty=true
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

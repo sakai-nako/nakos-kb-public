@@ -150,8 +150,8 @@ test('runs the importer CLI and keeps projection text out of output', () => {
   const destination = path.join(dir, 'content');
   fs.writeFileSync(source, JSON.stringify(bundle()), 'utf8');
   const result = spawnSync(
-    Deno.execPath(),
-    ['run', '-A', 'scripts/import-projection.mjs', source, destination, testAuthority(dir)],
+    process.execPath,
+    ['scripts/import-projection.mjs', source, destination, testAuthority(dir)],
     {
       cwd: path.resolve(import.meta.dirname, '..'),
       encoding: 'utf8',
@@ -163,8 +163,8 @@ test('runs the importer CLI and keeps projection text out of output', () => {
   assert.equal(`${result.stdout}${result.stderr}`.includes(bundle().chapters[1].body), false);
   fs.writeFileSync(source, '{invalid', 'utf8');
   const invalid = spawnSync(
-    Deno.execPath(),
-    ['run', '-A', 'scripts/import-projection.mjs', source, destination, testAuthority(dir)],
+    process.execPath,
+    ['scripts/import-projection.mjs', source, destination, testAuthority(dir)],
     {
       cwd: path.resolve(import.meta.dirname, '..'),
       encoding: 'utf8',
@@ -253,17 +253,8 @@ test('runs review and apply CLIs without logging projection content', () => {
   const reviews = path.join(dir, 'reviews');
   fs.writeFileSync(source, JSON.stringify(bundle()), 'utf8');
   const review = spawnSync(
-    Deno.execPath(),
-    [
-      'run',
-      '-A',
-      'scripts/projection-workflow.mjs',
-      'review',
-      source,
-      destination,
-      reviews,
-      testAuthority(dir),
-    ],
+    process.execPath,
+    ['scripts/projection-workflow.mjs', 'review', source, destination, reviews, testAuthority(dir)],
     { cwd: path.resolve(import.meta.dirname, '..'), encoding: 'utf8' },
   );
   assert.equal(review.status, 0, review.stderr);
@@ -271,34 +262,16 @@ test('runs review and apply CLIs without logging projection content', () => {
   assert.equal(`${review.stdout}${review.stderr}`.includes(bundle().chapters[1].body), false);
   const receipt = path.join(reviews, bundle().projection_revision, 'receipt.json');
   const apply = spawnSync(
-    Deno.execPath(),
-    [
-      'run',
-      '-A',
-      'scripts/projection-workflow.mjs',
-      'apply',
-      source,
-      receipt,
-      destination,
-      testAuthority(dir),
-    ],
+    process.execPath,
+    ['scripts/projection-workflow.mjs', 'apply', source, receipt, destination, testAuthority(dir)],
     { cwd: path.resolve(import.meta.dirname, '..'), encoding: 'utf8' },
   );
   assert.equal(apply.status, 0, apply.stderr);
   assert.equal(fs.existsSync(path.join(destination, 'work', 'index.md')), true);
   fs.writeFileSync(source, '{invalid', 'utf8');
   const invalid = spawnSync(
-    Deno.execPath(),
-    [
-      'run',
-      '-A',
-      'scripts/projection-workflow.mjs',
-      'review',
-      source,
-      destination,
-      reviews,
-      testAuthority(dir),
-    ],
+    process.execPath,
+    ['scripts/projection-workflow.mjs', 'review', source, destination, reviews, testAuthority(dir)],
     { cwd: path.resolve(import.meta.dirname, '..'), encoding: 'utf8' },
   );
   assert.notEqual(invalid.status, 0);

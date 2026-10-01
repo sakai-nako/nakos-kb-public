@@ -4,14 +4,14 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "deno run -A node_modules/astro/bin/astro.mjs dev",
-    "build": "deno run -A node_modules/astro/bin/astro.mjs build && deno run -A scripts/build-slides.mjs",
-    "test": "deno test -A tests/about.test.mjs tests/import-projection.test.mjs tests/projection-destination.test.mjs tests/events-projection.test.mjs tests/cfp-projection.test.mjs tests/blog-projection.test.mjs tests/slides-projection.test.mjs tests/build-slides.test.mjs tests/markdown.test.mjs tests/public-paths.test.mjs scripts/deployment-smoke.test.ts scripts/tasks.test.ts",
-    "e2e": "deno run -A node_modules/@playwright/test/cli.js test",
-    "import-projection": "deno run -A scripts/import-projection.mjs",
-    "review-projection": "deno run -A scripts/projection-workflow.mjs review",
-    "apply-projection": "deno run -A scripts/projection-workflow.mjs apply",
-    "publication-authority": "deno run -A scripts/publication-authority.mjs"
+    "dev": "astro dev",
+    "build": "astro build && node scripts/build-slides.mjs",
+    "test": "node --test tests/about.test.mjs tests/import-projection.test.mjs tests/projection-destination.test.mjs tests/events-projection.test.mjs tests/event-view.test.mjs tests/cfp-projection.test.mjs tests/blog-projection.test.mjs tests/slides-projection.test.mjs tests/build-slides.test.mjs tests/markdown.test.mjs tests/public-paths.test.mjs tests/playwright-config.test.mjs",
+    "e2e": "playwright test",
+    "import-projection": "node scripts/import-projection.mjs",
+    "review-projection": "node scripts/projection-workflow.mjs review",
+    "apply-projection": "node scripts/projection-workflow.mjs apply",
+    "publication-authority": "node scripts/publication-authority.mjs"
   },
   "dependencies": {
     "@personal/ui": "workspace:*",

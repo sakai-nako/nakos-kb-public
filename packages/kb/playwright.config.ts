@@ -10,7 +10,7 @@ export default defineConfig({
   use: { baseURL: `http://127.0.0.1:${port}` },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: `deno run -A "${astro}" dev --host 127.0.0.1 --port ${port} --strictPort`,
+    command: `node "${astro}" dev --host 127.0.0.1 --port ${port} --strictPort`,
     url: `http://127.0.0.1:${port}`,
     reuseExistingServer: false,
     env: {

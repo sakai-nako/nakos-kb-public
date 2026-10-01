@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { cfpsForEvent } from '../../shared/cfp';
+import { presentations, roleLabel } from '../../shared/event-view';
 import { event, events, formatJst } from '../../shared/events';
 import { cfpPath, eventPath, slidesPath } from '../../shared/public-paths';
 import { decksForEvent } from '../../shared/slides';
@@ -10,7 +11,10 @@ export function getStaticPaths() {
 const item = event(Astro.params.id ?? '');
 if (!item) return Astro.redirect('/404');
 const proposals = cfpsForEvent(item.id);
-const slideDecks = decksForEvent(item.id);
+const talks = presentations(
+  item.materials,
+  decksForEvent(item.id).map((deck) => ({ title: deck.title, href: slidesPath(deck.id) })),
+);
 const statusLabels: Record<string, string> = { submitted: '応募済み', accepted: '採択', rejected: '不採択', withdrawn: '取り下げ' };
 ---
 <Base title={item.event_name} canonical={eventPath(item.id)}>
@@ -23,7 +27,13 @@ const statusLabels: Record<string, string> = { submitted: '応募済み', accept
     {item.how_relate.length > 0 && (
       <section>
         <h2>関わり方</h2>
-        <ul class="nk-chip-list" role="list">{item.how_relate.map((tag) => <li class="nk-chip">{tag}</li>)}</ul>
+        <ul class="nk-chip-list" role="list">{item.how_relate.map((tag) => <li class="nk-chip">{roleLabel(tag)}</li>)}</ul>
+      </section>
+    )}
+    {talks.length > 0 && (
+      <section>
+        <h2>発表</h2>
+        <ul>{talks.map((talk) => <li><a href={talk.href} target="_blank" rel="noopener noreferrer">{talk.title}</a>{talk.platform && <span class="meta"> ({talk.platform})</span>}</li>)}</ul>
       </section>
     )}
     {proposals.length > 0 && (
@@ -37,18 +47,6 @@ const statusLabels: Record<string, string> = { submitted: '応募済み', accept
             {proposal.url && <a href={proposal.url} target="_blank" rel="noopener noreferrer">CfPページを開く</a>}
           </li>
         ))}</ul>
-      </section>
-    )}
-    {slideDecks.length > 0 && (
-      <section>
-        <h2>スライド</h2>
-        <ul>{slideDecks.map((deck) => <li><a href={slidesPath(deck.id)} target="_blank" rel="noopener noreferrer">{deck.title}</a></li>)}</ul>
-      </section>
-    )}
-    {item.materials.length > 0 && (
-      <section>
-        <h2>発表資料</h2>
-        <ul>{item.materials.map((material) => <li><a href={material.url} target="_blank" rel="noopener noreferrer">{material.title}</a>{material.platform && <span class="meta"> ({material.platform})</span>}</li>)}</ul>
       </section>
     )}
   </article>

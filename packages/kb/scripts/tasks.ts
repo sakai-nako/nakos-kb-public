@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { run } from '../../../../../scripts/runtime/process.ts';
+import { pnpmCommand, run } from '../../../../../scripts/runtime/process.ts';
 import { defaultDestination } from './import-projection.mjs';
 
 const kb = fileURLToPath(new URL('../', import.meta.url));
@@ -11,7 +11,12 @@ const destinationFor = (bundlePath: string) =>
   defaultDestination(JSON.parse(readFileSync(resolve(kb, bundlePath), 'utf8')));
 export async function main([task, ...args]: string[], execute: typeof run = run): Promise<number> {
   const deno = (argv: string[]) => execute({ command: Deno.execPath(), args: argv, cwd: kb });
-  if (task === 'build' || task === 'test' || task === 'e2e') return deno(['task', task, ...args]);
+  // npm 依存は pnpm が持ち、Astro と投影のスクリプトは node が動かす。
+  const pnpm = (argv: string[], env?: Record<string, string>) =>
+    execute({ command: pnpmCommand, args: argv, cwd: kb, env });
+  const node = (argv: string[], env?: Record<string, string>) =>
+    execute({ command: 'node', args: argv, cwd: kb, env });
+  if (task === 'build' || task === 'test' || task === 'e2e') return pnpm(['run', task, ...args]);
   // 検証用 build。6 種別すべての入力を tests/fixtures/ に固定する (公開データは build-release 側)。
   if (task === 'build-validation') {
     const fixture = (name: string) => resolve(kb, 'tests/fixtures', name);
@@ -24,13 +29,13 @@ export async function main([task, ...args]: string[], execute: typeof run = run)
       KB_SLIDES_CONTENT_ROOT: fixture('slides'),
       KB_SLIDES_OUT: resolve(kb, 'dist/slides'),
     };
-    const tested = await execute({ command: Deno.execPath(), args: ['task', 'test'], cwd: kb });
+    const tested = await pnpm(['run', 'test']);
     if (tested) return tested;
-    for (const argv of [
-      ['run', '-A', 'npm:astro@7.2.2', 'build'],
-      ['run', '-A', 'scripts/build-slides.mjs'],
+    for (const step of [
+      () => pnpm(['exec', 'astro', 'build'], env),
+      () => node(['scripts/build-slides.mjs'], env),
     ]) {
-      const code = await execute({ command: Deno.execPath(), args: argv, cwd: kb, env });
+      const code = await step();
       if (code) return code;
     }
     return 0;
@@ -50,26 +55,24 @@ export async function main([task, ...args]: string[], execute: typeof run = run)
     };
     // workspace の依存は repo root で入れる (kb の build が @personal/ui を読む)。
     const installed = await execute({
-      command: Deno.execPath(),
-      args: ['install', '--frozen'],
+      command: pnpmCommand,
+      args: ['install', '--frozen-lockfile'],
       cwd: resolve(kb, '../../../..'),
     });
     if (installed) return installed;
-    for (const argv of [
-      ['run', '-A', 'npm:astro@7.2.2', 'build'],
+    for (const step of [
+      () => pnpm(['exec', 'astro', 'build'], env),
       // Slidev のデッキは Astro の dist に並置する (投影が無ければ何もしない)。
-      ['run', '-A', 'scripts/build-slides.mjs'],
+      () => node(['scripts/build-slides.mjs'], env),
     ]) {
-      const code = await execute({ command: Deno.execPath(), args: argv, cwd: kb, env });
+      const code = await step();
       if (code) return code;
     }
     return 0;
   }
   if (task === 'smoke') return deno(['run', '-A', 'scripts/deployment-smoke.ts', ...args]);
   if (task === 'projection-review')
-    return deno([
-      'run',
-      '-A',
+    return node([
       'scripts/projection-workflow.mjs',
       'review',
       args[0],
@@ -77,9 +80,7 @@ export async function main([task, ...args]: string[], execute: typeof run = run)
       args[1],
     ]);
   if (task === 'projection-apply')
-    return deno([
-      'run',
-      '-A',
+    return node([
       'scripts/projection-workflow.mjs',
       'apply',
       args[0],
@@ -87,9 +88,7 @@ export async function main([task, ...args]: string[], execute: typeof run = run)
       destinationFor(args[0]),
     ]);
   if (task.startsWith('authority-'))
-    return deno([
-      'run',
-      '-A',
+    return node([
       'scripts/publication-authority.mjs',
       task.slice(10),
       'publication-authority.json',

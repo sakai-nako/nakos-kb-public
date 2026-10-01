@@ -179,7 +179,7 @@ export function applyProjection(
   });
 }
 if (import.meta.main) {
-  const [command, bundlePath, third, fourth, fifth] = Deno.args;
+  const [command, bundlePath, third, fourth, fifth] = process.argv.slice(2);
   if (command === 'review' && bundlePath) {
     const parsed = JSON.parse(fs.readFileSync(bundlePath, 'utf8'));
     const result = reviewProjection(

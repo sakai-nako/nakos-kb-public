@@ -61,10 +61,8 @@ function buildDeck(slug) {
   const outDir = path.join(outRoot, slug);
   ensureDeckAssets(deckDir);
   execFileSync(
-    Deno.execPath(),
+    process.execPath,
     [
-      'run',
-      '-A',
       slidev,
       'build',
       path.join(deckDir, 'index.md'),

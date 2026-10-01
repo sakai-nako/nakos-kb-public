@@ -134,15 +134,27 @@ test('keeps primary reading links available without JavaScript and at wide width
   await context.close();
 });
 
-test('lists events newest first and renders a detail page safely in JST', async ({ page }) => {
+test('lists talks apart from other events and renders a detail page safely in JST', async ({
+  page,
+}) => {
   await page.goto('/events');
   await expect(page).toHaveTitle("Events | Nako's Knowledge Base");
   await expect(page.getByRole('link', { name: 'Events' })).toHaveAttribute('aria-current', 'page');
-  const cards = page.locator('.nk-card-grid .nk-card');
-  await expect(cards).toHaveCount(2);
-  await expect(cards.first()).toContainText('合成イベント B');
-  await expect(cards.nth(1)).toContainText('合成資料 A');
-  await page.getByRole('link', { name: /合成イベント A/ }).click();
+  await expect(page.locator('.nk-card-grid .nk-card')).toHaveCount(2);
+  const talks = page.locator('section#talks');
+  await expect(talks.getByRole('heading', { name: '登壇したイベント' })).toBeVisible();
+  await expect(talks.locator('.nk-card')).toHaveCount(1);
+  await expect(talks.locator('.nk-card')).toContainText('合成イベント A');
+  await expect(talks.locator('.nk-chip')).toHaveText(['登壇', '運営']);
+  // デッキと同じパスの資料は重ねて出さない。
+  await expect(talks.locator('.nk-card__desc')).toHaveText('発表: 合成デッキ <b>x</b>、合成資料 A');
+  const others = page.locator('section#others');
+  await expect(others.getByRole('heading', { name: 'その他のイベント' })).toBeVisible();
+  await expect(others.locator('.nk-card')).toHaveCount(1);
+  await expect(others.locator('.nk-card')).toContainText('合成イベント B');
+  await page.goto('/events#talks');
+  await expect(talks).toBeInViewport();
+  await talks.getByRole('link', { name: /合成イベント A/ }).click();
   await expect(page).toHaveURL(/\/events\/2026-01-01-fixture-a$/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
@@ -155,20 +167,30 @@ test('lists events newest first and renders a detail page safely in JST', async 
     'rel',
     'noopener noreferrer',
   );
+  const presentationsSection = page
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: '発表', exact: true }) });
+  await expect(presentationsSection.getByRole('link')).toHaveText([
+    '合成デッキ <b>x</b>',
+    '合成資料 A',
+  ]);
   await expect(page.getByRole('link', { name: '合成資料 A' })).toHaveAttribute(
     'href',
     'https://example.com/deck-a',
   );
+  await expect(page.getByRole('link', { name: '合成デッキの資料' })).toHaveCount(0);
+  // 発表の節が CfP の節より先に来る。
+  await expect(page.locator('article h2')).toHaveText(['関わり方', '発表', 'CfP']);
   // CfP の節も chip を持つので、関わり方の節に絞って確認する。
   await expect(
     page
       .locator('section')
       .filter({ has: page.getByRole('heading', { name: '関わり方' }) })
       .locator('.nk-chip'),
-  ).toHaveText(['speaker', 'organizer']);
+  ).toHaveText(['登壇', '運営']);
   await page.goto('/events/2026-02-02-fixture-b');
   await expect(page.getByRole('link', { name: 'イベントページを開く' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '発表資料' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '発表', exact: true })).toHaveCount(0);
 });
 
 test('renders a cfp with sanitized markdown, its drafts page, and the event backlink', async ({
@@ -255,13 +277,13 @@ test('lists slide decks and links out to each built deck', async ({ page }) => {
   await page.goto('/events/2026-01-01-fixture-a');
   const section = page
     .locator('section')
-    .filter({ has: page.getByRole('heading', { name: 'スライド' }) });
+    .filter({ has: page.getByRole('heading', { name: '発表', exact: true }) });
   await expect(section.getByRole('link', { name: '合成デッキ <b>x</b>' })).toHaveAttribute(
     'href',
     '/slides/2026-01-01-fixture-deck/',
   );
   await page.goto('/events/2026-02-02-fixture-b');
-  await expect(page.getByRole('heading', { name: 'スライド' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '発表', exact: true })).toHaveCount(0);
 });
 
 // dev server は redirect 先の /404 を 200 で返し、静的配信 (static-web-server) は 404 を返す。
